@@ -106,8 +106,8 @@ function LoginPage() {
                     <div className="col-12 lg:col-5 p-6 flex flex-column justify-content-between">
                         <div>
                             <div className="text-center mb-6">
-                                <img src="layout/images/hotel-removebg.png" alt="logo" className="mb-4" style={{ height: '50px' }} />
-                                <div className="text-900 text-3xl font-medium mb-3">ADIS Hotel System</div>
+                                <img src="layout/images/billiard-removebg.png" alt="logo" className="mb-4" style={{ height: '50px' }} />
+                                <div className="text-900 text-3xl font-medium mb-3">ADIS Billiard System</div>
                             </div>
 
                             <div style={{}}>
@@ -184,7 +184,7 @@ function LoginPage() {
                     {/* Image Column */}
                     <div className="col-12 lg:col-7 hidden lg:flex p-0">
                         <img
-                            src={`/layout/images/hotel.jpg`}
+                            src={`/layout/images/billiard.webp`}
                             alt="Hotel"
                             className="w-full border-round-right"
                             style={{
