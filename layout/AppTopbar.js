@@ -124,7 +124,7 @@ const AppTopbar = forwardRef((props, ref) => {
             <Toast ref={toast} />
             <div className="layout-topbar">
                 <Link href="/" className="layout-topbar-logo" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <img src={`${contextPath}/layout/images/1.png`} width="auto" height={'60px'} />
+                    <img src={`${contextPath}/layout/images/billiard-removebg.png`} width="auto" height={'60px'} />
                     {/* <span>GODONG</span> */}
                 </Link>
 
