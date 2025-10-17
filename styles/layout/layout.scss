@@ -1,0 +1,37 @@
+@import './_variables';
+@import "./_mixins";
+@import "./_preloading";
+@import "./_main";
+@import "./_topbar";
+@import "./_menu";
+@import "./_config";
+@import "./_content";
+@import "./_footer";
+@import "./_responsive";
+@import "./_utils";
+@import "./_typography";
+
+
+.p-sidebar-custom {
+    width: 100vw !important;
+}
+
+
+.custom-checkbox .p-checkbox-icon {
+    padding: 8px;
+    width: 28px;
+    height: 28px;
+}
+
+@media (min-width: 768px) {
+    .p-sidebar-custom {
+        width: 60vw !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .p-sidebar-custom {
+        width: 40vw !important;
+    }
+}
+

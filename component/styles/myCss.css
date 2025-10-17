@@ -1,0 +1,9 @@
+
+.vertical-line {
+    border: none;
+    border-left: 1px solid black; /* Atur warna garis sesuai kebutuhan */
+    height: 100px; /* Atur tinggi garis sesuai kebutuhan */
+    width: 0;
+    display: inline-block;
+    margin: 0 5px; /* Atur margin sesuai kebutuhan */
+}

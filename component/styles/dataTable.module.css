@@ -1,0 +1,42 @@
+/* component/styles/dataTables.module.css */
+
+/* Gaya untuk kontainer tabel */
+.datatableContainer {
+    overflow-y: auto;
+    max-height: 400px;
+  }
+
+  /* Gaya untuk header tabel */
+  .datatableThead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f5f5f5;
+  }
+
+  /* Gaya untuk footer tabel */
+  .datatableTfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    background-color: #f5f5f5;
+  }
+/* Add these styles to your CSS */
+.full-page {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .formgrid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+    height: 100%; /* Make sure the parent container fills the entire screen */
+  }
+
+  .card {
+    height: 100vh; /* Set the card height to fill the full page */
+    /* Add any other necessary styles for the card class */
+  }
+
+  /* Add any other necessary styles for your specific layout */
