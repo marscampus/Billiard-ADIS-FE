@@ -559,7 +559,7 @@ export default function DashboardDua(props) {
                     </div>
                     <div className="flex flex-column gap-2 mt-2">
                         <div className="card mb-0" style={{ borderRadius: '4px', padding: '4px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '16px' }}>Kamar : {data.no_kamar || '000'}</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '16px' }}>Meja : {data.no_kamar || '000'}</div>
                             <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
                                 Harga :{' '}
                                 <b className="text-green-700">
@@ -875,7 +875,7 @@ export default function DashboardDua(props) {
                                         }}
                                     >
                                         <div className="flex align-items-center justify-content-between font-bold">
-                                            <span>Pilih Kamar</span>
+                                            <span>Pilih Meja</span>
                                             <div className="flex gap-4 align-items-center">
                                                 <Tooltip target=".custom-target-icon" />
                                                 <i
@@ -927,7 +927,7 @@ export default function DashboardDua(props) {
                                                     {formik.values.kamar.length > 0 ? <Badge value={formik.values.kamar.length} severity="danger"></Badge> : ''}
                                                 </i>
 
-                                                <InputText keyfilter={'alphanum'} placeholder="Cari No Kamar" value={dataDash.filterValue} onChange={(e) => filterSearch(e.target.value)} />
+                                                <InputText keyfilter={'alphanum'} placeholder="Cari No Meja" value={dataDash.filterValue} onChange={(e) => filterSearch(e.target.value)} />
                                             </div>
                                         </div>
                                     </div>
@@ -959,7 +959,7 @@ export default function DashboardDua(props) {
                 <div>
                     <div className="flex justify-content-between">
                         <span className="text-left font-bold " style={{ fontSize: '18px' }}>
-                            {sidebar.reservasi ? 'Reservasi' : sidebar.laporan ? `Data : ${formik.values.kode_invoice}` : 'Checkin Langsung'}
+                            {sidebar.reservasi ? 'Reservasi' : sidebar.laporan ? `Data : ${formik.values.kode_invoice}` : 'Bermain Langsung'}
                         </span>
                         <span className="text-right font-bold " style={{ fontSize: '18px' }}>
                             {sidebar.laporan && `Tanggal : ${formik.values.tgl_invoice}`}
@@ -967,7 +967,7 @@ export default function DashboardDua(props) {
                     </div>
                     <div className="card" style={{ borderRadius: '4px', marginTop: '5px', padding: '10px' }}>
                         <div className="flex justify-content-between align-items-center">
-                            <h4 className="mb-0">Kamar</h4>
+                            <h4 className="mb-0">Meja</h4>
                             {!sidebar.reservasi && !sidebar.laporan ? (
                                 <Button
                                     label="Gunakan Data Reservasi"
@@ -985,14 +985,14 @@ export default function DashboardDua(props) {
                                     <div className="flex w-full align-items-end gap-2" key={index} style={{ borderBottom: '1px solid rgb(0,0,0)', backgroundColor: 'rgb(240, 240, 240)', marginTop: '5px', padding: '6px', borderRadius: '4px' }}>
                                         <div className="w-full flex flex-column gap-2">
                                             <div className="flex justify-content-between font-bold">
-                                                <div>Kamar : {item.no_kamar}</div>
+                                                <div>Meja : {item.no_kamar}</div>
                                                 <div>
                                                     Harga : {rupiahConverter(item.harga_kamar)} / {item.per_harga}
                                                 </div>
                                             </div>
                                             <div className="flex gap-2 w-full">
                                                 <div className="flex flex-column gap-2 w-full">
-                                                    <label htmlFor={`cek_in_${index}`}>Tanggal Checkin</label>
+                                                    <label htmlFor={`cek_in_${index}`}>Waktu Mulai Bermain</label>
                                                     <div className="p-inputgroup">
                                                         <Calendar
                                                             id={`cek_in_${index}`}
@@ -1025,7 +1025,7 @@ export default function DashboardDua(props) {
                                                     {formik.errors.kamar?.[index]?.cek_in && formik.touched.kamar?.[index]?.cek_in && <small className="p-error">{formik.errors.kamar[index].cek_in}</small>}
                                                 </div>
                                                 <div className="flex flex-column gap-2 w-full">
-                                                    <label htmlFor={`cek_out_${index}`}>Tanggal Checkout</label>
+                                                    <label htmlFor={`cek_out_${index}`}>Waktu Selesai Bermain</label>
                                                     <div className="p-inputgroup">
                                                         <Calendar
                                                             id={`cek_out_${index}`}
