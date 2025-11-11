@@ -277,7 +277,7 @@ const LaporanReservasi = (props) => {
                 fillColor: [204, 201, 199],
                 textColor: 20
             },
-            head: [['Kamar', 'Harga Kamar', 'Checkin', 'Checkout']],
+            head: [['Meja', 'Harga Meja', 'Checkin', 'Checkout']],
             body: kamar,
             // foot: [[{ content: 'Total Kamar', styles: { halign: 'right' } }, rupiahConverter(formik.values.total_kamar)]],
             didParseCell: (data) => {
@@ -324,7 +324,7 @@ const LaporanReservasi = (props) => {
         doc.text('Perhitungan:', labelX, tableEndY + 10);
 
         doc.setFont('Helvetica', 'normal');
-        doc.text('Harga Kamar', labelX, tableEndY + 20);
+        doc.text('Harga Meja', labelX, tableEndY + 20);
         doc.text(': ' + rupiahConverter(hargaKamar), valueX, tableEndY + 20);
 
         doc.text('DP', labelX, tableEndY + 27);
@@ -401,8 +401,8 @@ const LaporanReservasi = (props) => {
             </div>
             <Dialog visible={dataReservasi.showDetail} onHide={() => setDataReservasi((prev) => ({ ...prev, showDetail: false, dataDetail: [] }))} style={{ width: '80%' }}>
                 <DataTable value={dataReservasi.dataDetail}>
-                    <Column field="no_kamar" header="No Kamar"></Column>
-                    <Column field="harga_kamar" header="Harga Kamar" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
+                    <Column field="no_kamar" header="No Meja"></Column>
+                    <Column field="harga_kamar" header="Harga Meja" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
                     <Column field="cek_in" header="CHeckin"></Column>
                     <Column field="cek_out" header="CHeckout"></Column>
                 </DataTable>

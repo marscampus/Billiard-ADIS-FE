@@ -358,12 +358,12 @@ export default function Kamar() {
         },
         validate: (data) => {
             let errors = {};
-            !data.kode_kamar && (errors.kode_kamar = 'Kode Kamar tidak boleh kosong.');
-            !data.no_kamar && (errors.no_kamar = 'No. Kamar tidak boleh kosong.');
+            !data.kode_kamar && (errors.kode_kamar = 'Kode Meja tidak boleh kosong.');
+            !data.no_kamar && (errors.no_kamar = 'No. Meja tidak boleh kosong.');
             !data.harga && (errors.harga = 'Harga tidak boleh kosong.');
-            !data.tipe && (errors.tipe = 'Tipe Kamar belum dipilih.');
-            !data.per_harga && (errors.per_harga = 'Per Waktu Kamar belum dipilih.');
-            !data.fasilitas || (data.fasilitas.length < 1 && (errors.fasilitas = 'Fasilitas Kamar belum dipilih.'));
+            !data.tipe && (errors.tipe = 'Tipe Meja belum dipilih.');
+            !data.per_harga && (errors.per_harga = 'Per Waktu Meja belum dipilih.');
+            !data.fasilitas || (data.fasilitas.length < 1 && (errors.fasilitas = 'Fasilitas Meja belum dipilih.'));
             if (!dialog.edit) {
                 !data.foto && (errors.foto = 'Foto tidak boleh kosong.');
             }

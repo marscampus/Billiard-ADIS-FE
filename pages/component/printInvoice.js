@@ -39,7 +39,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
         <div ref={ref} style={{ padding: '5px', fontFamily: 'Helvetica', fontSize: '10px', lineHeight: 1.2 }}>
             {/* Header Invoice */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                <div>{data?.logo_hotel && <img src={data?.logo_hotel} alt="Logo Hotel" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}</div>
+                <div>{data?.logo_hotel && <img src={data?.logo_hotel} alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}</div>
                 <div style={{ textAlign: 'right', fontSize: '10px' }}>
                     <h4 style={{ margin: 0, fontSize: '14px' }}>{data?.nama_hotel}</h4>
                     <p style={{ margin: '1px 0', fontSize: '9px' }}>{data?.alamat_hotel}</p>

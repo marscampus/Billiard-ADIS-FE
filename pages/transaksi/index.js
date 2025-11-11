@@ -686,7 +686,7 @@ export default function DashboardDua(props) {
                 fillColor: [204, 201, 199],
                 textColor: 20
             },
-            head: [['Kamar', 'Harga Kamar', 'Checkin', 'Checkout']],
+            head: [['Meja', 'Harga Meja', 'Checkin', 'Checkout']],
             body: kamar,
             // foot: [[{ content: 'Total Kamar', styles: { halign: 'right' } }, rupiahConverter(formik.values.total_kamar)]],
             didParseCell: (data) => {
@@ -733,7 +733,7 @@ export default function DashboardDua(props) {
         doc.text('Perhitungan:', labelX, tableEndY + 10);
 
         doc.setFont('Helvetica', 'normal');
-        doc.text('Harga Kamar', labelX, tableEndY + 20);
+        doc.text('Harga Meja', labelX, tableEndY + 20);
         doc.text(': ' + rupiahConverter(hargaKamar), valueX, tableEndY + 20);
 
         doc.text('DP', labelX, tableEndY + 27);
@@ -1271,7 +1271,7 @@ export default function DashboardDua(props) {
                                 <div className="flex flex-column gap-2">
                                     <div className="flex justify-content-between">
                                         <div>
-                                            <b>Total Kamar : {rupiahConverter(formik.values.total_kamar)}</b>
+                                            <b>Total Meja : {rupiahConverter(formik.values.total_kamar)}</b>
                                         </div>
                                         <div className="flex gap-2 flex-column">
                                             <div>
@@ -1467,7 +1467,7 @@ export default function DashboardDua(props) {
                 >
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="nik" header="KTP"></Column>
-                    <Column field="kamar_list" header="Kamar Dipakai"></Column>
+                    <Column field="kamar_list" header="Meja Dipakai"></Column>
                     <Column field="nama_tamu" header="Nama Tamu"></Column>
                     <Column field="no_telepon" header="No Telepon"></Column>
                     <Column field="bayar" header="Bayar" body={(rowData) => rupiahConverter(rowData.bayar)}></Column>

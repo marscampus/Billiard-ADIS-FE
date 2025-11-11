@@ -39,7 +39,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
         <div ref={ref} style={{ padding: '5px', fontFamily: 'Helvetica', fontSize: '10px', lineHeight: 1.2 }}>
             {/* Header Invoice */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                <div>{data?.logo_hotel && <img src={data?.logo_hotel} alt="Logo Hotel" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}</div>
+                <div>{data?.logo_hotel && <img src={data?.logo_hotel} alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}</div>
                 <div style={{ textAlign: 'right', fontSize: '10px' }}>
                     <h4 style={{ margin: 0, fontSize: '14px' }}>{data?.nama_hotel}</h4>
                     <p style={{ margin: '1px 0', fontSize: '9px' }}>{data?.alamat_hotel}</p>
@@ -76,7 +76,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9px' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#CCC', border: '1px solid #000' }}>
-                        <th style={{ textAlign: 'left', padding: '2px' }}>No Kamar</th>
+                        <th style={{ textAlign: 'left', padding: '2px' }}>No Meja</th>
                         <th style={{ textAlign: 'right', padding: '2px' }}>Harga</th>
                         <th style={{ textAlign: 'center', padding: '2px' }}>Checkin</th>
                         <th style={{ textAlign: 'center', padding: '2px' }}>Checkout</th>
@@ -88,7 +88,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
             {/* Perhitungan */}
             <div style={{ marginTop: '5px' }}>
                 <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Perhitungan:</p>
-                <p style={{ margin: '1px 0' }}>Harga Kamar : {rupiahConverter(hargaKamar)}</p>
+                <p style={{ margin: '1px 0' }}>Harga Meja : {rupiahConverter(hargaKamar)}</p>
                 <p style={{ margin: '1px 0' }}>DP : - {rupiahConverter(dp)}</p>
                 <p style={{ margin: '1px 0' }}>
                     Diskon ({diskonPersen}%) : - {rupiahConverter(jumlahDiskon)}

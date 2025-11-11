@@ -127,7 +127,7 @@ export default function DashboardDua(props) {
             <div className="flex">
                 <InputText
                     value={dataDash.searchDataKamar}
-                    placeholder="Cari No Kamar"
+                    placeholder="Cari No Meja"
                     className="w-full"
                     onChange={(e) => {
                         const value = e.target.value;
@@ -159,7 +159,7 @@ export default function DashboardDua(props) {
                                 <i className="pi pi-calendar-plus text-7xl"></i>
                             </div>
                         </div>
-                        <div className="text-700 font-medium text-sm">Jumlah kamar yang dimiliki hotel</div>
+                        <div className="text-700 font-medium text-sm">Jumlah Meja yang dimiliki</div>
                     </div>
                 </div>
                 <div className="col-12 lg:col-4 my-2">
@@ -173,21 +173,21 @@ export default function DashboardDua(props) {
                                 <i className="pi pi-calendar-plus text-7xl"></i>
                             </div>
                         </div>
-                        <div className="text-700 font-medium text-sm">Jumlah kamar yang tidak sedang digunakan</div>
+                        <div className="text-700 font-medium text-sm">Jumlah Meja yang tidak sedang digunakan</div>
                     </div>
                 </div>
                 <div className="col-12 lg:col-4 my-2">
                     <div className="card">
                         <div className="flex justify-content-between">
                             <div>
-                                <span className="block text-700 font-medium text-xl">Kamar Terpakai</span>
+                                <span className="block text-700 font-medium text-xl">Meja Terpakai</span>
                                 <div className="text-900 font-medium text-5xl text-center">{dataDash.kamarTerpakai}</div>
                             </div>
                             <div className="flex align-items-center">
                                 <i className="pi pi-calendar-plus text-7xl"></i>
                             </div>
                         </div>
-                        <div className="text-700 font-medium text-sm">Jumlah kamar yang sedang digunakan</div>
+                        <div className="text-700 font-medium text-sm">Jumlah Meja yang sedang digunakan</div>
                     </div>
                 </div>
             </div>
@@ -265,7 +265,7 @@ export default function DashboardDua(props) {
                                             </div>
                                             <div className="card col-4">
                                                 <DataTable value={item.kamar_used} scrollable scrollHeight="370px" header={headerDataKamarTemplate} filters={dataDash.filterKamar} globalFilterFields={['no_kamar']}>
-                                                    <Column field="no_kamar" header="Kamar"></Column>
+                                                    <Column field="no_kamar" header="Meja"></Column>
                                                     <Column field="tgl_checkout" header="Checkout"></Column>
                                                 </DataTable>
                                             </div>

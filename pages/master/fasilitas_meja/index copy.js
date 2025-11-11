@@ -252,7 +252,7 @@ export default function FasilitasKamar() {
     return (
         <div className="grid crud-demo">
             <div className="col-12">
-                <h4>Master Fasilitas Kamar</h4>
+                <h4>Master Fasilitas Meja</h4>
                 <div className="card">
                     <hr></hr>
                     <Toast ref={toast}></Toast>

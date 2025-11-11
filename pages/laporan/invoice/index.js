@@ -310,7 +310,7 @@ const LaporanInvoice = (props) => {
                 fillColor: [204, 201, 199],
                 textColor: 20
             },
-            head: [['Kamar', 'Harga Kamar', 'Checkin', 'Checkout']],
+            head: [['Meja', 'Harga Meja', 'Checkin', 'Checkout']],
             body: kamar,
             // foot: [[{ content: 'Total Kamar', styles: { halign: 'right' } }, rupiahConverter(formik.values.total_kamar)]],
             didParseCell: (data) => {
@@ -357,7 +357,7 @@ const LaporanInvoice = (props) => {
         doc.text('Perhitungan:', labelX, tableEndY + 10);
 
         doc.setFont('Helvetica', 'normal');
-        doc.text('Harga Kamar', labelX, tableEndY + 20);
+        doc.text('Harga Meja', labelX, tableEndY + 20);
         doc.text(': ' + rupiahConverter(hargaKamar), valueX, tableEndY + 20);
 
         doc.text('DP', labelX, tableEndY + 27);
@@ -422,11 +422,11 @@ const LaporanInvoice = (props) => {
                 <h4>Laporan Invoice</h4>
                 <DataTable value={dataInvoice.data} size="small" filters={filters} globalFilterFields={['nik', 'nama_tamu', 'no_telepon', 'kode_invoice', 'kamar_list']} loading={dataInvoice.load} paginator rows={10} header={headerTemplate}>
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
-                    <Column field="kamar_list" header="Kamar dipakai"></Column>
+                    <Column field="kamar_list" header="Meja dipakai"></Column>
                     <Column field="nik" header="KTP"></Column>
                     <Column field="nama_tamu" header="Nama Tamu"></Column>
                     <Column field="no_telepon" header="No Telepon"></Column>
-                    <Column field="total_kamar" header="Total Kamar" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
+                    <Column field="total_kamar" header="Total Meja" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
                     <Column field="total_harga_real" header="Total Harga Asli" body={(rowData) => rupiahConverter(rowData.total_harga_real)}></Column>
                     <Column field="dp" header="Total DP" body={(rowData) => rupiahConverter(rowData.dp)}></Column>
                     {/* <Column field="total_bayar_tersisa" header="Total Bayar Yang Tersisa" body={(rowData) => rupiahConverter(rowData.total_bayar_tersisa)}></Column> */}
@@ -440,7 +440,7 @@ const LaporanInvoice = (props) => {
                             return (
                                 <div className="flex gap-1">
                                     <Button icon="pi pi-trash" tooltipOptions={{ position: 'top' }} tooltip="Hapus Transaksi" severity="danger" onClick={() => setDataInvoice((prev) => ({ ...prev, showDelete: true, dataEdit: rowData }))} />
-                                    <Button icon="pi pi-file" tooltipOptions={{ position: 'top' }} tooltip="Cek Kamar" onClick={() => setDataInvoice((prev) => ({ ...prev, showDetail: true, dataDetail: rowData.kamar }))} />
+                                    <Button icon="pi pi-file" tooltipOptions={{ position: 'top' }} tooltip="Cek Meja" onClick={() => setDataInvoice((prev) => ({ ...prev, showDetail: true, dataDetail: rowData.kamar }))} />
                                     <Button icon="pi pi-print" tooltipOptions={{ position: 'top' }} tooltip="Print ulang" severity="warning" loading={pdf.load} onClick={() => getDataPdf(rowData.kode_invoice)} />
                                 </div>
                             );
@@ -450,8 +450,8 @@ const LaporanInvoice = (props) => {
             </div>
             <Dialog visible={dataInvoice.showDetail} onHide={() => setDataInvoice((prev) => ({ ...prev, showDetail: false, dataDetail: [] }))} style={{ width: '80%' }}>
                 <DataTable value={dataInvoice.dataDetail}>
-                    <Column field="no_kamar" header="No Kamar"></Column>
-                    <Column field="harga_kamar" header="Harga Kamar" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
+                    <Column field="no_kamar" header="No Meja"></Column>
+                    <Column field="harga_kamar" header="Harga Meja" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
                     <Column field="cek_in" header="CHeckin"></Column>
                     <Column field="cek_out" header="CHeckout"></Column>
                     <Column body={invoiceAction}></Column>

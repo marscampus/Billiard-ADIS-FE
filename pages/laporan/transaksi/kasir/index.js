@@ -455,7 +455,7 @@ export default function MasterLapKasir() {
                         <Column field="tgl" header="Tanggal" />
                         <Column field="kode" header="Faktur" />
                         <Column field="sesi_jual" header="Sesi Jual" />
-                        <Column align={'right'} field="total_kamar" header="Total Kamar" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
+                        <Column align={'right'} field="total_kamar" header="Total Meja" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
                         {state.dataFilter.tipeLaporan == 'invoice' ? <Column align={'right'} field="total_harga_real" header="Total Harga Asli" body={(rowData) => rupiahConverter(rowData.total_harga_real)}></Column> : ''}
                         <Column align={'right'} field="dp" header="Total DP" body={(rowData) => rupiahConverter(rowData.dp)}></Column>
                         {state.dataFilter.tipeLaporan == 'invoice' ? <Column align={'right'} field="total_bayar_tersisa" header="Total Bayar Yang Tersisa" body={(rowData) => rupiahConverter(rowData.total_bayar_tersisa)}></Column> : ''}
@@ -477,8 +477,8 @@ export default function MasterLapKasir() {
                         }}
                     >
                         <DataTable value={state.dataDetail}>
-                            <Column field="no_kamar" header="No Kamar"></Column>
-                            <Column field="harga_kamar" header="Harga Kamar" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
+                            <Column field="no_kamar" header="No Meja"></Column>
+                            <Column field="harga_kamar" header="Harga Meja" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
                             <Column field="cek_in" header="Checkin"></Column>
                             <Column field="cek_out" header="Checkout"></Column>
                         </DataTable>

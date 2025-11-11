@@ -1,16 +1,14 @@
-import { Toast } from 'primereact/toast';
-import { getSessionServerSide } from '../../../utilities/servertool';
 import React, { useEffect, useRef, useState } from 'react';
-import { Toolbar } from 'primereact/toolbar';
+import { getSessionServerSide } from '../../../utilities/servertool';
+import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
-import { Dialog } from 'primereact/dialog';
-import postData from '../../../lib/Axios';
+import { Column } from 'primereact/column';
+import { Toolbar } from 'primereact/toolbar';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { Column } from 'primereact/column';
+import { Dialog } from 'primereact/dialog';
+import postData from '../../../lib/Axios';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { FileUpload } from 'primereact/fileupload';
-import Image from 'next/image';
 import { useFormik } from 'formik';
 
 export async function getSessionSideProps(context) {
@@ -23,19 +21,33 @@ export async function getSessionSideProps(context) {
     };
 }
 
-export default function FasilitasKamar() {
-    const apiEndPointGet = '/api/fasilitaskamar/get';
-    const apiEndPointStore = '/api/fasilitaskamar/store';
-    const apiEndPointUpdate = '/api/fasilitaskamar/update';
-    const apiEndPointDelete = '/api/fasilitaskamar/delete';
+export default function TipeKamar() {
+    const apiEndPointGet = '/api/tipekamar/get';
+    const apiEndPointStore = '/api/tipekamar/store';
+    const apiEndPointUpdate = '/api/tipekamar/update';
+    const apiEndPointDelete = '/api/tipekamar/delete';
     const toast = useRef(null);
-    const [fasilitasKamarTabel, setFasilitasKamarTabel] = useState([]);
-    const [fasilitasKamarTabelFilt, setFasilitasKamarTabelFilt] = useState([]);
+    const [tipeKamar, setTipeKamar] = useState([]);
+    const [tipeKamarTabel, setTipeKamarTabel] = useState([]);
+    const [tipeKamarTabelFilt, setTipeKamarTabelFilt] = useState([]);
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(10);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [totalRecords, setTotalRecords] = useState(0);
+    const [tipeKamarDialog, setTipeKamarDialog] = useState(false);
+    const [isUpdateMode, setIsUpdateMode] = useState(false);
+    const [dialog, setDialog] = useState({
+        data: {
+            id: '',
+            kode: '',
+            keterangan: '',
+            deskripsi: ''
+        },
+        show: false,
+        edit: false,
+        delete: false
+    });
     const [lazyState, setlazyState] = useState({
         first: 0,
         rows: 10,
@@ -45,30 +57,19 @@ export default function FasilitasKamar() {
         filters: {}
     });
 
-    const [dialog, setDialog] = useState({
-        data: {
-            id: '',
-            kode: '',
-            keterangan: '',
-            deskripsi: '',
-            foto: ''
-        },
-        show: false,
-        edit: false,
-        delete: false
-    });
-
     useEffect(() => {
         loadLazyData();
     }, [lazyState]);
 
     useEffect(() => {
-        setFasilitasKamarTabelFilt(fasilitasKamarTabel);
-    }, [fasilitasKamarTabel, lazyState]);
+        setTipeKamarTabelFilt(tipeKamarTabel);
+    }, [tipeKamarTabel, lazyState]);
 
     const onPage = (event) => {
+        // Set lazyState from event
         setlazyState(event);
 
+        // Ensure filters remain as strings if they are objects
         if (event.filters) {
             Object.keys(event.filters).forEach((key) => {
                 const filterValue = event.filters[key];
@@ -78,9 +79,11 @@ export default function FasilitasKamar() {
                 }
             });
         }
+        // Set first and rows for pagination
         setFirst(event.first);
         setRows(event.rows);
 
+        // Load data with updated lazyState
         loadLazyData();
     };
 
@@ -99,27 +102,13 @@ export default function FasilitasKamar() {
             const vaTable = await postData(apiEndPointGet, lazyState);
             const json = vaTable.data;
             setTotalRecords(json.data.length);
-            setFasilitasKamarTabel(json.data);
+            setTipeKamarTabel(json.data);
         } catch (error) {
             const e = error?.response?.data || error;
             showError(e?.message || 'Terjadi Kesalahan');
             setLoading(false);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        try {
-            const res = await postData(apiEndPointDelete, { id: dialog.data.id });
-            showSuccess(res.data.message);
-            loadLazyData();
-
-            setDialog({ data: {}, show: false, edit: false, delete: false });
-        } catch (error) {
-            console.log(error);
-            const e = error?.response?.data || error;
-            showError(e?.message || 'Terjadi Kesalahan');
         }
     };
 
@@ -132,6 +121,7 @@ export default function FasilitasKamar() {
             } else {
                 endPoint = apiEndPointStore;
             }
+            // Kirim data ke server
             const vaData = await postData(endPoint, input);
             let res = vaData.data;
             showSuccess(res.data?.message || 'Berhasil Create Data');
@@ -159,9 +149,8 @@ export default function FasilitasKamar() {
                         formik.setValues({
                             id: rowData.id,
                             kode: rowData.kode,
-                            deskripsi: rowData.deskripsi,
                             keterangan: rowData.keterangan,
-                            foto: rowData.foto
+                            deskripsi: rowData.deskripsi
                         });
                     }}
                 />
@@ -181,7 +170,6 @@ export default function FasilitasKamar() {
                         className="mr-2"
                         onClick={() => {
                             setDialog({ data: {}, show: true, edit: false, delete: false });
-                            formik.resetForm();
                         }}
                     />
                 </div>
@@ -218,81 +206,29 @@ export default function FasilitasKamar() {
         let filtered = [];
 
         if (name == 'search') {
-            filtered = fasilitasKamarTabel.filter((d) => (x ? x.test(d.kode) || x.test(d.keterangan) || x.test(d.deskripsi) : []));
+            filtered = tipeKamarTabel.filter((d) => (x ? x.test(d.kode) || x.test(d.keterangan) || x.test(d.deskripsi) : []));
             setSearch(searchVal);
         }
 
-        setFasilitasKamarTabelFilt(filtered);
+        setTipeKamarTabelFilt(filtered);
     };
 
-    //  Yang Handle Inputan File
-    const onFileSelect = (event) => {
-        const file = event.files[0];
-        if (file.size > 900000) {
-            formik.setFieldValue('foto', null);
-            return showError('File tidak boleh lebih dari 1MB.');
-        }
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            formik.setFieldValue('foto', e.target.result);
-        };
-
-        if (file) {
-            reader.readAsDataURL(file);
-        }
-    };
-
-    //  Yang Handle Gambar
-    const imageBodyTemplate = (rowData) => {
-        return (
-            <>
-                <Image
-                    src={rowData.foto || `/layout/images/no_img.jpg`}
-                    width={100}
-                    height={100}
-                    style={{
-                        borderRadius: '6px',
-                        height: '80px',
-                        width: '80px',
-                        objectPosition: 'center',
-                        objectFit: 'cover',
-                        boxShadow: '0px 0px 3px 1px rgba(107,102,102,0.35)'
-                    }}
-                />
-            </>
-        );
-    };
-
+    //  Yang Handle Validasi Data
     const formik = useFormik({
         initialValues: {
+            id: '',
             kode: '',
             keterangan: '',
-            deskripsi: '',
-            foto: ''
+            deskripsi: ''
         },
         validate: (data) => {
             let errors = {};
-
-            // Validasi kode
-            if (!data.kode) {
-                errors.kode = 'Kode tidak boleh kosong.';
-            }
-
-            // Validasi keterangan
-            if (!data.keterangan) {
-                errors.keterangan = 'Keterangan tidak boleh kosong.';
-            }
-
-            // Validasi foto
-            if (!data.foto) {
-                errors.foto = 'Foto harus diunggah.';
-            }
+            !data.kode && (errors.kode = 'Kode tidak boleh kosong.');
+            !data.keterangan && (errors.keterangan = 'Keterangan tidak boleh kosong.');
 
             return errors;
         },
         onSubmit: (data) => {
-            console.log(data);
             handleSave(data);
         }
     });
@@ -301,6 +237,20 @@ export default function FasilitasKamar() {
 
     const getFormErrorMessage = (name) => {
         return isFormFieldInvalid(name) ? <small className="p-error">{formik.errors[name]}</small> : <small className="p-error">&nbsp;</small>;
+    };
+
+    //  Yang Handle Delete
+    const handleDelete = async () => {
+        try {
+            const res = await postData(apiEndPointDelete, { id: dialog.data.id });
+            showSuccess(res.data.message);
+            setDialog({ data: {}, show: false, edit: false, delete: false });
+            loadLazyData();
+        } catch (error) {
+            console.log(error);
+            const e = error?.response?.data || error;
+            showError(e?.message || 'Terjadi Kesalahan');
+        }
     };
 
     const footerDeleteTemplate = (
@@ -313,17 +263,17 @@ export default function FasilitasKamar() {
     return (
         <div className="grid crud-demo">
             <div className="col-12">
-                <h4>Master Fasilitas Kamar</h4>
                 <div className="card">
+                    <h4>Master Tipe Meja</h4>
                     <hr></hr>
                     <Toast ref={toast}></Toast>
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
                     <DataTable
-                        value={fasilitasKamarTabelFilt}
+                        value={tipeKamarTabelFilt}
                         filters={lazyState.filters}
                         header={headerSearch}
-                        first={first}
-                        rows={rows}
+                        first={first} // Menggunakan nilai halaman pertama dari state
+                        rows={rows} // Menggunakan nilai jumlah baris per halaman dari state
                         onPage={onPage}
                         paginator
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -337,14 +287,14 @@ export default function FasilitasKamar() {
                         <Column headerStyle={{ textAlign: 'center' }} field="kode" header="KODE"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} field="keterangan" header="KETERANGAN"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} field="deskripsi" header="DESKRIPSI"></Column>
-                        <Column headerStyle={{ textAlign: 'center' }} field="foto" body={imageBodyTemplate} header="FOTO"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} header="ACTION" body={actionBodyTemplate}></Column>
                     </DataTable>
                 </div>
             </div>
+            {/* Dialog Form */}
             <Dialog
                 visible={dialog.show && !dialog.delete}
-                header={dialog.edit ? 'Edit Data Fasilitas' : 'Tambah Data Fasilitas'}
+                header={dialog.edit ? 'Edit Data Tipe Meja' : 'Tambah Data Tipe Meja'}
                 modal
                 style={{ width: '40%' }}
                 onHide={() => {
@@ -370,7 +320,6 @@ export default function FasilitasKamar() {
                             </div>
                             {isFormFieldInvalid('kode') ? getFormErrorMessage('kode') : ''}
                         </div>
-
                         <div className="flex flex-column gap-2">
                             <label htmlFor="keterangan">Keterangan</label>
                             <div className="p-inputgroup">
@@ -399,40 +348,17 @@ export default function FasilitasKamar() {
                                     className={isFormFieldInvalid('deskripsi') ? 'p-invalid' : ''}
                                 />
                             </div>
-                            {isFormFieldInvalid('deskripsi') ? getFormErrorMessage('deskripsi') : ''}
-                        </div>
-
-                        <div className="flex flex-column gap-2" style={{ width: '100%' }}>
-                            <label htmlFor="foto">Foto</label>
-                            {!formik.values.foto && <FileUpload key={formik.values.foto} name="foto" accept="image/*" style={{ width: '100%' }} customUpload mode="basic" chooseLabel="Pilih Foto" auto={false} onSelect={onFileSelect} />}
-                            {formik.values.foto && (
-                                <div className="mt-2" style={{ position: 'relative' }}>
-                                    <img src={formik.values.foto} alt="Preview Foto" className="mb-3" style={{ width: '100%', height: '300px', objectFit: 'cover', objectPosition: 'center' }} />
-                                    <Button
-                                        // label="Hapus Foto"
-                                        icon="pi pi-trash"
-                                        className="p-button-danger"
-                                        style={{ position: 'absolute', top: '0', right: '0' }}
-                                        onClick={() => {
-                                            formik.setValues((prev) => ({
-                                                ...prev,
-                                                foto: null
-                                            }));
-                                        }}
-                                    />
-                                </div>
-                            )}
-                            {isFormFieldInvalid('foto') ? getFormErrorMessage('foto') : ''}
                         </div>
                     </div>
-                    <Button type="submit" className="mt-2" label={dialog.edit ? 'Update' : 'Save'} />
+                    <Button type="submit" label={dialog.edit ? 'Update' : 'Save'} />
                 </form>
             </Dialog>
+
             <Dialog header="Delete" visible={dialog.show && dialog.delete} onHide={() => setDialog({ data: {}, show: false, edit: false, delete: false })} footer={footerDeleteTemplate}>
                 <div className="flex align-items-center justify-content-center">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                     <span>
-                        are you sure you want to delete <strong>{dialog.data?.keterangan}</strong>
+                        are you sure you want to delete <strong>{dialog.data?.kode}</strong>
                     </span>
                 </div>
             </Dialog>

@@ -185,7 +185,7 @@ function LoginPage() {
                     <div className="col-12 lg:col-7 hidden lg:flex p-0">
                         <img
                             src={`/layout/images/billiard.webp`}
-                            alt="Hotel"
+                            alt="Logo"
                             className="w-full border-round-right"
                             style={{
                                 objectFit: 'cover',

@@ -157,7 +157,7 @@ export default function PostingJurnal() {
                     <p className="mb-1">Proses Posting Akan Melakukan Proses :</p>
                     <div className="formgrid grid">
                         <div className="field col-12 lg:col-4">
-                            <p className="ml-3 mb-1">1. Posting Transaksi Sewa Kamar</p>
+                            <p className="ml-3 mb-1">1. Posting Transaksi Sewa Meja</p>
                         </div>
                     </div>
                 </div>

@@ -142,7 +142,7 @@ const HotelConfig = (props) => {
                         }}
                     >
                         <div className="flex justify-content-between align-items-center">
-                            <span className="font-bold text-xl">Informasi Hotel</span>
+                            <span className="font-bold text-xl">Informasi Perusahaan</span>
                             <ToggleButton onChange={(e) => setDataConfig((p) => ({ ...p, edit: e.value }))} checked={dataConfig.edit} onLabel="Edit Mode" offLabel="Info Mode" />
                         </div>
                     </div>
@@ -167,7 +167,7 @@ const HotelConfig = (props) => {
                             </div>
                             <div className="flex flex-column w-full gap-2">
                                 <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="nama_hotel">Nama Hotel</label>
+                                    <label htmlFor="nama_hotel">Nama</label>
                                     <div className="p-inputgroup">
                                         <InputText
                                             style={{ width: '100%' }}
@@ -184,7 +184,7 @@ const HotelConfig = (props) => {
                                     {isFormFieldInvalid('nama_hotel') ? getFormErrorMessage('nama_hotel') : ''}
                                 </div>
                                 <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="alamat_hotel">Alamat Hotel</label>
+                                    <label htmlFor="alamat_hotel">Alamat</label>
                                     <div className="p-inputgroup">
                                         <InputText
                                             style={{ width: '100%' }}
