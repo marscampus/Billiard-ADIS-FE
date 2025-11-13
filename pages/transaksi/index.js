@@ -1463,8 +1463,7 @@ export default function DashboardDua(props) {
                         setDataPenginap((prev) => ({ ...prev, show: false }));
                         setSidebar((prev) => ({ ...prev, showBar: true, laporan: true, reservasi: false }));
                         console.log(data);
-                    }}
-                >
+                    }}>
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="nik" header="KTP"></Column>
                     <Column field="kamar_list" header="Meja Dipakai"></Column>
