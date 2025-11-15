@@ -5,6 +5,8 @@ import { Toolbar } from 'primereact/toolbar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import { Image } from 'primereact/image';
+import { FileUpload } from 'primereact/fileupload';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { useFormik } from 'formik';
@@ -35,14 +37,7 @@ export default function Pembiayaan() {
     const [search, setSearch] = useState('');
     const [totalRecords, setTotalRecords] = useState(0);
     const [rekeningDialog, setRekeningDialog] = useState(false);
-    const [lazyState, setlazyState] = useState({
-        first: 0,
-        rows: 10,
-        page: 0,
-        sortField: null,
-        sortOrder: null,
-        filters: {}
-    });
+
     const [dialog, setDialog] = useState({
         data: {
             id: '',
@@ -55,39 +50,24 @@ export default function Pembiayaan() {
         delete: false
     });
 
-    const onPage = (event) => {
-        setlazyState(event);
-
-        if (event.filters) {
-            Object.keys(event.filters).forEach((key) => {
-                const filterValue = event.filters[key];
-                if (typeof filterValue === 'object' && !Array.isArray(filterValue)) {
-                    const stringValue = Object.values(filterValue).join('');
-                    event.filters[key] = stringValue;
-                }
-            });
-        }
-        setFirst(event.first);
-        setRows(event.rows);
-
-        loadLazyData();
-    };
-
     useEffect(() => {
         loadLazyData();
     }, []);
 
     useEffect(() => {
         setPembayaranTabelFilt(pembayaranTabel);
-    }, [pembayaranTabel, lazyState]);
+    }, [pembayaranTabel]);
 
     const loadLazyData = async () => {
+        setLoading(true)
         try {
-            const res = await postData(apiEndPointGet, lazyState);
+            const res = await postData(apiEndPointGet, {});
             setPembayaranTabel(res.data.data);
         } catch (error) {
             const e = error?.response?.data || error;
             showError(e?.message || 'Terjadi Kesalahan');
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -147,6 +127,7 @@ export default function Pembiayaan() {
                             kode: rowData.kode,
                             keterangan: rowData.keterangan,
                             kode_rekening: rowData.kode_rekening,
+                            foto: rowData.foto,
                             ket_kode_rekening: rowData.ket_kode_rekening
                         });
                     }}
@@ -170,6 +151,53 @@ export default function Pembiayaan() {
         </div>
     );
 
+    const onFileSelect = (event) => {
+        const file = event.files[0]; // Ambil file pertama dari FileUpload
+        if (file.size > 900000) {
+            // formik.setValues((prev) => ({
+            //     ...prev,
+            //     foto: null
+            // }));
+            formik.setFieldValue('foto', null);
+            return showError('File tidak boleh lebih dari 1MB.');
+        }
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            formik.setFieldValue('foto', e.target.result);
+            // formik.setValues((prev) => ({
+            //     ...prev,
+            //     foto: e.target.result
+            // }));
+        };
+
+        if (file) {
+            reader.readAsDataURL(file); // Konversi file ke base64
+        }
+    };
+
+    //  Yang Handle Gambar
+    const imageBodyTemplate = (rowData) => {
+        return (
+            <>
+                <Image
+                    src={rowData.foto || `/layout/images/no_img.jpg`}
+                    width={80}
+                    height={80}
+                    preview
+                    style={{
+                        borderRadius: '6px',
+                        height: '80px',
+                        width: '80px',
+                        objectPosition: 'center',
+                        objectFit: 'cover',
+                        boxShadow: '0px 0px 3px 1px rgba(107,102,102,0.35)'
+                    }}
+                />
+            </>
+        );
+    };
+
     const filterPlugins = (name, searchVal) => {
         const x = searchVal.length > 0 ? new RegExp(searchVal, 'i') : null;
         let filtered = [];
@@ -187,7 +215,8 @@ export default function Pembiayaan() {
             kode: '',
             keterangan: '',
             kode_rekening: '',
-            ket_kode_rekening: ''
+            ket_kode_rekening: '',
+            foto: ''
         },
         validate: (data) => {
             let errors = {};
@@ -200,11 +229,6 @@ export default function Pembiayaan() {
             // Validasi keterangan
             if (!data.keterangan) {
                 errors.keterangan = 'Keterangan tidak boleh kosong.';
-            }
-
-            // Validasi rekening
-            if (!data.kode_rekening) {
-                errors.rekening = 'Rekening harus dipilih].';
             }
 
             return errors;
@@ -262,6 +286,7 @@ export default function Pembiayaan() {
 
     //  Yang Handle Save/Update
     const handleSave = async (input) => {
+        setLoading(true)
         try {
             let endPoint;
             if (input.id) {
@@ -280,6 +305,8 @@ export default function Pembiayaan() {
             console.log(error);
             const e = error?.response?.data || error;
             showError(e?.message || 'Terjadi Kesalahan');
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -293,11 +320,9 @@ export default function Pembiayaan() {
                     <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
                     <DataTable
                         value={pembayaranTabelFilt}
-                        filters={lazyState.filters}
                         header={headerSearch}
                         first={first}
                         rows={rows}
-                        onPage={onPage}
                         paginator
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Menampilkan {first} - {last} dari {totalRecords} data"
@@ -309,6 +334,7 @@ export default function Pembiayaan() {
                     >
                         <Column headerStyle={{ textAlign: 'center' }} field="kode" header="KODE"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} field="keterangan" header="KETERANGAN"></Column>
+                        <Column headerStyle={{ textAlign: 'center' }} field="foto" body={imageBodyTemplate} header="FOTO"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} field="kode_rekening" header="REKENING"></Column>
                         <Column headerStyle={{ textAlign: 'center' }} header="ACTION" body={actionBodyTemplate}></Column>
                     </DataTable>
@@ -318,67 +344,92 @@ export default function Pembiayaan() {
                 visible={dialog.show && !dialog.delete}
                 header={dialog.edit ? 'Edit Data Pembayaran' : 'Tambah Data Pembayaran'}
                 modal
-                style={{ width: '40%' }}
+                style={{ width: '80%' }}
                 onHide={() => {
                     setDialog({ data: {}, show: false, edit: false, delete: false });
                     formik.resetForm();
                 }}
             >
                 <form onSubmit={formik.handleSubmit} className="flex flex-column gap-2">
-                    <div>
-                        <div className="flex flex-column gap-2">
-                            <label htmlFor="kode">Kode</label>
-                            <div className="p-inputgroup">
-                                <InputText
-                                    id="kode"
-                                    name="kode"
-                                    readOnly={dialog.edit}
-                                    value={formik.values.kode}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('kode', e.target.value);
-                                    }}
-                                    className={isFormFieldInvalid('kode') ? 'p-invalid' : ''}
-                                />
+                    <div className='grid'>
+                        <div className='col-8 flex flex-column gap-2'>
+                            <div className="flex flex-column gap-2">
+                                <label htmlFor="kode">Kode</label>
+                                <div className="p-inputgroup">
+                                    <InputText
+                                        id="kode"
+                                        name="kode"
+                                        readOnly={dialog.edit}
+                                        value={formik.values.kode}
+                                        onChange={(e) => {
+                                            formik.setFieldValue('kode', e.target.value);
+                                        }}
+                                        className={isFormFieldInvalid('kode') ? 'p-invalid' : ''}
+                                    />
+                                </div>
+                                {isFormFieldInvalid('kode') ? getFormErrorMessage('kode') : ''}
                             </div>
-                            {isFormFieldInvalid('kode') ? getFormErrorMessage('kode') : ''}
+                            <div className="flex flex-column gap-2">
+                                <label htmlFor="keterangan">Keterangan</label>
+                                <div className="p-inputgroup">
+                                    <InputText
+                                        id="keterangan"
+                                        name="keterangan"
+                                        value={formik.values.keterangan}
+                                        onChange={(e) => {
+                                            formik.setFieldValue('keterangan', e.target.value);
+                                        }}
+                                        className={isFormFieldInvalid('keterangan') ? 'p-invalid' : ''}
+                                    />
+                                </div>
+                                {isFormFieldInvalid('keterangan') ? getFormErrorMessage('keterangan') : ''}
+                            </div>
+                            <div className="flex flex-column gap-2">
+                                <label htmlFor="rekening">Rekening</label>
+                                <div className="p-inputgroup">
+                                    <InputText
+                                        id="kodeRekening"
+                                        name="KodeRekening"
+                                        value={formik.values.kode_rekening} // Harus terhubung ke formik
+                                        onChange={formik.handleChange}
+                                        className={isFormFieldInvalid('KodeRekening') ? 'p-invalid' : ''}
+                                    />
+                                    <Button icon="pi pi-search" className="p-button" type="button" onClick={btnRekening} />
+                                    <InputText
+                                        id="ketSatuan"
+                                        name="KetKodeRekening"
+                                        value={formik.values.ket_kode_rekening} // Harus terhubung ke formik
+                                        disabled
+                                        className={isFormFieldInvalid('KetKodeRekening') ? 'p-invalid' : ''}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex flex-column gap-2">
-                            <label htmlFor="keterangan">Keterangan</label>
-                            <div className="p-inputgroup">
-                                <InputText
-                                    id="keterangan"
-                                    name="keterangan"
-                                    value={formik.values.keterangan}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('keterangan', e.target.value);
-                                    }}
-                                    className={isFormFieldInvalid('keterangan') ? 'p-invalid' : ''}
-                                />
-                            </div>
-                            {isFormFieldInvalid('keterangan') ? getFormErrorMessage('keterangan') : ''}
-                        </div>
-                        <div className="flex flex-column gap-2">
-                            <label htmlFor="rekening">Rekening</label>
-                            <div className="p-inputgroup">
-                                <InputText
-                                    id="kodeRekening"
-                                    name="KodeRekening"
-                                    value={formik.values.kode_rekening} // Harus terhubung ke formik
-                                    onChange={formik.handleChange}
-                                    className={isFormFieldInvalid('KodeRekening') ? 'p-invalid' : ''}
-                                />
-                                <Button icon="pi pi-search" className="p-button" type="button" onClick={btnRekening} />
-                                <InputText
-                                    id="ketSatuan"
-                                    name="KetKodeRekening"
-                                    value={formik.values.ket_kode_rekening} // Harus terhubung ke formik
-                                    disabled
-                                    className={isFormFieldInvalid('KetKodeRekening') ? 'p-invalid' : ''}
-                                />
-                            </div>
+                        <div className="flex flex-column gap-2 col-4">
+                            <label htmlFor="foto">Foto</label>
+                            {!formik.values.foto && <FileUpload name="foto" key={formik.values.foto} accept="image/*" customUpload mode="basic" chooseLabel="Pilih Foto" auto={false} onSelect={onFileSelect} />}
+                            {formik.values.foto && (
+                                <div className="mt-2" style={{ position: 'relative' }}>
+                                    <img src={formik.values.foto} alt="Preview Foto" className="mb-3" style={{ width: '300px', height: '300px', objectFit: 'cover', objectPosition: 'center' }} />
+                                    <Button
+                                        // label="Hapus Foto"
+                                        icon="pi pi-trash"
+                                        className="p-button-danger"
+                                        style={{ position: 'absolute', top: '0', right: '0' }}
+                                        onClick={() => {
+                                            formik.setValues((prev) => ({
+                                                ...prev,
+                                                foto: null
+                                            }));
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            {isFormFieldInvalid('foto') ? getFormErrorMessage('foto') : ''}
                         </div>
                     </div>
-                    <Button type="submit" className="mt-2" label={dialog.edit ? 'Update' : 'Save'} />
+
+                    <Button type="submit" loading={loading} className="mt-2" label={dialog.edit ? 'Update' : 'Save'} />
                 </form>
             </Dialog>
             <Dialog header="Delete" visible={dialog.show && dialog.delete} onHide={() => setDialog({ data: {}, show: false, edit: false, delete: false })} footer={footerDeleteTemplate}>
@@ -390,6 +441,6 @@ export default function Pembiayaan() {
                 </div>
             </Dialog>
             <RekeningCOA rekeningDialog={rekeningDialog} setRekeningDialog={setRekeningDialog} handleRekeningData={handleRekeningData}></RekeningCOA>
-        </div>
+        </div >
     );
 }

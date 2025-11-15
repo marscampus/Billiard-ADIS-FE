@@ -880,7 +880,7 @@ export default function DashboardDua(props) {
                                                 <Tooltip target=".custom-target-icon" />
                                                 <i
                                                     className="custom-target-icon pi pi-book p-text-secondary p-overlay-badge"
-                                                    data-pr-tooltip="Data Penginap"
+                                                    data-pr-tooltip="Data Pemain"
                                                     data-pr-position="right"
                                                     data-pr-at="right+5 top"
                                                     data-pr-my="left center-2"
@@ -892,7 +892,7 @@ export default function DashboardDua(props) {
                                                 >
                                                     <Badge value={dataPenginap.totData} severity="danger"></Badge>
                                                 </i>
-                                                <Tooltip target=".custom-target-icon" />
+                                                {/* <Tooltip target=".custom-target-icon" />
                                                 <i
                                                     className="custom-target-icon pi pi-calendar p-text-secondary p-overlay-badge"
                                                     data-pr-tooltip="Reservasi"
@@ -906,11 +906,11 @@ export default function DashboardDua(props) {
                                                     }}
                                                 >
                                                     {formik.values.kamar.length > 0 ? <Badge value={formik.values.kamar.length} severity="danger"></Badge> : ''}
-                                                </i>
+                                                </i> */}
                                                 <Tooltip target=".custom-target-icon" />
                                                 <i
                                                     className="custom-target-icon pi pi-home p-text-secondary p-overlay-badge"
-                                                    data-pr-tooltip="Check In Langsung"
+                                                    data-pr-tooltip="Pembayaran / Pelunasan"
                                                     data-pr-position="right"
                                                     data-pr-at="right+5 top"
                                                     data-pr-my="left center-2"
@@ -924,7 +924,8 @@ export default function DashboardDua(props) {
                                                         setSidebar((prev) => ({ ...prev, showBar: true, reservasi: false }));
                                                     }}
                                                 >
-                                                    {formik.values.kamar.length > 0 ? <Badge value={formik.values.kamar.length} severity="danger"></Badge> : ''}
+                                                    {/* {formik.values.kamar.length > 0 ? <Badge value={formik.values.kamar.length} severity="danger"></Badge> : ''} */}
+                                                    {dataReservasi.data.length > 0 ? <Badge value={dataReservasi.data.length} severity="danger"></Badge> : ''}
                                                 </i>
 
                                                 <InputText keyfilter={'alphanum'} placeholder="Cari No Meja" value={dataDash.filterValue} onChange={(e) => filterSearch(e.target.value)} />
