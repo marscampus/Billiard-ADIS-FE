@@ -76,10 +76,10 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9px' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#CCC', border: '1px solid #000' }}>
-                        <th style={{ textAlign: 'left', padding: '2px' }}>No Kamar</th>
+                        <th style={{ textAlign: 'left', padding: '2px' }}>Meja</th>
                         <th style={{ textAlign: 'right', padding: '2px' }}>Harga</th>
-                        <th style={{ textAlign: 'center', padding: '2px' }}>Checkin</th>
-                        <th style={{ textAlign: 'center', padding: '2px' }}>Checkout</th>
+                        <th style={{ textAlign: 'center', padding: '2px' }}>Mulai</th>
+                        <th style={{ textAlign: 'center', padding: '2px' }}>Selesai</th>
                     </tr>
                 </thead>
                 <tbody>{kamarRows}</tbody>
@@ -180,14 +180,14 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
             </div>
 
             {/* Tanda Tangan */}
-            <div
+            {/* <div
                 style={{
                     marginTop: '25px',
                     textAlign: 'right',
                     paddingRight: '30px'
                 }}
             >
-                <span style={{ fontSize: '10px', marginRight: '5px' }}>(Tanda Tangan Tamu)</span>
+                <span style={{ fontSize: '10px', marginRight: '5px' }}>(Tanda Tangan)</span>
                 <div
                     style={{
                         borderBottom: '1px solid #000',
@@ -198,7 +198,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
                         height: '20px'
                     }}
                 ></div>
-            </div>
+            </div> */}
 
             {/* Footer */}
             <div
@@ -211,7 +211,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
                 }}
             >
                 <p style={{ margin: '3px 0' }}>Terima kasih atas kunjungan Anda</p>
-                <p style={{ margin: '3px 0' }}>Barang yang hilang menjadi tanggung jawab tamu</p>
+                {/* <p style={{ margin: '3px 0' }}>Barang yang hilang menjadi tanggung jawab tamu</p> */}
             </div>
         </div>
     );

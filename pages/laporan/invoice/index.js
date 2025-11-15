@@ -241,171 +241,6 @@ const LaporanInvoice = (props) => {
             </>
         );
     };
-
-    const printPdf = async (data) => {
-        const doc = new jsPDF();
-
-        const kamar = data.kamar.map((item) => [item.no_kamar, rupiahConverter(item.harga_kamar), item.cek_in, item.cek_out]);
-
-        console.log(kamar);
-        // Logo Sikop
-        const imgBase64 = await loadImageAsBase64('/layout/images/godongpng.png');
-
-        // Menambahkan gambar ke PDF
-        // doc.addImage(imgBase64, 'PNG', 15, 15, 50, 13);
-
-        // doc.setFont('Helvetica', 'normal');
-        // doc.setFontSize(18);
-        // doc.text('PT MARSTECH', 198, 20, null, null, 'right');
-
-        // doc.setFont('Helvetica', 'normal');
-        // doc.setFontSize(14);
-        // doc.text('Jl. Margatama Asri IV', 198, 27, null, null, 'right');
-        // doc.text('Kota Madiun, Jawa Timur', 198, 33, null, null, 'right');
-        // doc.text('63118', 198, 39, null, null, 'right');
-        // doc.addImage(data.logo_hotel, 'PNG', 15, 15, 50, 13);
-        await getBase64ImageResolution(data.logo_hotel).then(({ width, height }) => {
-            console.log(`Resolusi gambar: ${width}x${height}`);
-
-            if (width > 500 || height > 500) {
-                showError('Resolusi logo terlalu besar, sebaiknya resize ke <500x500 px');
-            } else {
-                doc.addImage(data.logo_hotel, 'PNG', 15, 8, 25, 25);
-            }
-        });
-
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(18);
-        doc.text(data.nama_hotel, 198, 20, null, null, 'right');
-
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(data.alamat_hotel, 198, 27, null, null, 'right');
-        doc.text(data.no_telp_hotel, 198, 33, null, null, 'right');
-
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.text('Invoice : ' + data.kode_invoice, 15, 43);
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(14);
-        doc.text('Invoice Date : ' + data.tgl_invoice, 15, 50);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Invoice To', 15, 70);
-        doc.setFont('Helvetica', 'normal');
-        doc.text(data.nama_tamu, 15, 77);
-        doc.text(data.nik, 15, 84);
-        doc.text(data.no_telepon, 15, 90);
-
-        doc.autoTable({
-            startY: 95,
-            columnStyles: { 1: { halign: 'right' }, 0: { halign: 'left' } },
-            styles: {
-                lineWidth: 0.1,
-                fontSize: 14,
-                halign: 'center'
-            },
-            headStyles: {
-                fillColor: [204, 201, 199],
-                textColor: 20
-            },
-            head: [['Meja', 'Harga Meja', 'Checkin', 'Checkout']],
-            body: kamar,
-            // foot: [[{ content: 'Total Kamar', styles: { halign: 'right' } }, rupiahConverter(formik.values.total_kamar)]],
-            didParseCell: (data) => {
-                if (data.section === 'foot') {
-                    data.cell.styles.halign = 'right';
-                    data.cell.styles.fillColor = [204, 204, 204];
-                    data.cell.styles.textColor = 20;
-                }
-            },
-            didDrawCell: (data) => {
-                if (data.section === 'foot' && data.row.index === 1) {
-                    // Baris kedua di foot
-                    const { table, cell } = data;
-                    const { x, y, width } = cell;
-                    const borderY = y; // Koordinat garis di atas sel
-
-                    data.doc.setLineWidth(0.5); // Ketebalan garis
-                    data.doc.setDrawColor(240, 240, 240); // Warna garis (hitam)
-                    data.doc.line(x, borderY, x + width, borderY); // Menggambar garis horizontal
-                }
-            }
-        });
-
-        const hargaKamar = Number(data.total_kamar) || 0;
-        const dp = Number(data.dp) || 0;
-        const diskonPersen = Number(data.disc) || 0;
-        const ppnPersen = Number(data.ppn) || 0;
-
-        const hargaSetelahDP = hargaKamar - dp;
-
-        const jumlahDiskon = (hargaSetelahDP * diskonPersen) / 100;
-        const hargaSetelahDiskon = hargaSetelahDP - jumlahDiskon;
-
-        const jumlahPPN = (hargaSetelahDiskon * ppnPersen) / 100;
-        const hargaTotal = hargaSetelahDiskon + jumlahPPN;
-
-        const tableEndY = doc.lastAutoTable?.finalY || 50;
-
-        // Posisi kolom
-        const labelX = 15;
-        const valueX = 78;
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Perhitungan:', labelX, tableEndY + 10);
-
-        doc.setFont('Helvetica', 'normal');
-        doc.text('Harga Meja', labelX, tableEndY + 20);
-        doc.text(': ' + rupiahConverter(hargaKamar), valueX, tableEndY + 20);
-
-        doc.text('DP', labelX, tableEndY + 27);
-        doc.text(': -' + rupiahConverter(dp), valueX, tableEndY + 27);
-
-        doc.text(`Diskon (${diskonPersen}%)`, labelX, tableEndY + 34);
-        doc.text(': -' + rupiahConverter(jumlahDiskon), valueX, tableEndY + 34);
-
-        doc.text(`PPN (${ppnPersen}%)`, labelX, tableEndY + 41);
-        doc.text(': +' + rupiahConverter(jumlahPPN), valueX, tableEndY + 41);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Total Harga', labelX, tableEndY + 48);
-        doc.text(': ' + rupiahConverter(hargaTotal), valueX, tableEndY + 48);
-
-        const pembayaranStartY = tableEndY + 60;
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Pembayaran:', labelX, pembayaranStartY);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Jumlah Pembayaran', labelX, pembayaranStartY + 10);
-        doc.text(': ' + rupiahConverter(data.bayar), valueX, pembayaranStartY + 10);
-
-        doc.setFont('Helvetica', 'normal');
-        doc.text('Metode Pembayaran', labelX, pembayaranStartY + 17);
-        doc.text(': ' + data.cara_bayar, valueX, pembayaranStartY + 17);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Status Pembayaran', labelX, pembayaranStartY + 24);
-        doc.text(': ' + data.status_bayar, valueX, pembayaranStartY + 24);
-
-        doc.setFont('Helvetica', 'normal');
-        doc.text('Sisa Bayar', labelX, pembayaranStartY + 31);
-        doc.text(': ' + rupiahConverter(data.sisa_bayar), valueX, pembayaranStartY + 31);
-
-        doc.setFontSize(10);
-        const pageWidth = doc.internal.pageSize.width;
-        const pageHeight = doc.internal.pageSize.height;
-        const date = new Date();
-        const getTgl = date.getDate();
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
-        doc.text('PDF Generated On ' + getTgl + '/' + month + '/' + year, pageWidth / 2, pageHeight - 20, {
-            align: 'center'
-        });
-        const uri = doc.output('datauristring');
-        setPdf((prev) => ({ ...prev, uri: uri }));
-    };
     //
 
     const footerDeleteTemplate = (
@@ -424,7 +259,7 @@ const LaporanInvoice = (props) => {
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="kamar_list" header="Meja dipakai"></Column>
                     <Column field="nik" header="KTP"></Column>
-                    <Column field="nama_tamu" header="Nama Tamu"></Column>
+                    <Column field="nama_tamu" header="Nama"></Column>
                     <Column field="no_telepon" header="No Telepon"></Column>
                     <Column field="total_kamar" header="Total Meja" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
                     <Column field="total_harga_real" header="Total Harga Asli" body={(rowData) => rupiahConverter(rowData.total_harga_real)}></Column>
@@ -450,10 +285,10 @@ const LaporanInvoice = (props) => {
             </div>
             <Dialog visible={dataInvoice.showDetail} onHide={() => setDataInvoice((prev) => ({ ...prev, showDetail: false, dataDetail: [] }))} style={{ width: '80%' }}>
                 <DataTable value={dataInvoice.dataDetail}>
-                    <Column field="no_kamar" header="No Meja"></Column>
+                    <Column field="no_kamar" header="Meja"></Column>
                     <Column field="harga_kamar" header="Harga Meja" body={(rowData) => rupiahConverter(rowData.harga_kamar)}></Column>
-                    <Column field="cek_in" header="CHeckin"></Column>
-                    <Column field="cek_out" header="CHeckout"></Column>
+                    <Column field="cek_in" header="Mulai"></Column>
+                    <Column field="cek_out" header="Selesai"></Column>
                     <Column body={invoiceAction}></Column>
                 </DataTable>
             </Dialog>
