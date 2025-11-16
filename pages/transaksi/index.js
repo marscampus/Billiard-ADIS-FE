@@ -200,9 +200,9 @@ export default function DashboardDua(props) {
             let errors = {};
 
             // Validasi untuk field utama
-            !data.nama && (errors.nama = 'Nama tamu tidak boleh kosong.');
-            !data.no_telp && (errors.no_telp = 'No telp tamu tidak boleh kosong.');
-            !data.nik && (errors.nik = 'KTP tamu tidak boleh kosong.');
+            !data.nama && (errors.nama = 'Nama pemain tidak boleh kosong.');
+            !data.no_telp && (errors.no_telp = 'No telp pemain tidak boleh kosong.');
+            !data.nik && (errors.nik = 'KTP pemain tidak boleh kosong.');
 
             // Validasi untuk kamar
             errors.kamar = []; // Inisialisasi sebagai array kosong
@@ -1139,7 +1139,7 @@ export default function DashboardDua(props) {
                         <form onSubmit={formik.handleSubmit} className="flex flex-column gap-2">
                             <div className="flex gap-3">
                                 <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="nama">Nama Tamu</label>
+                                    <label htmlFor="nama">Nama</label>
                                     <div className="p-inputgroup">
                                         <InputText
                                             style={{ width: '100%' }}
@@ -1157,7 +1157,7 @@ export default function DashboardDua(props) {
                                 </div>
 
                                 <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="nik">KTP Tamu</label>
+                                    <label htmlFor="nik">KTP</label>
                                     <div className="p-inputgroup">
                                         <InputText
                                             style={{ width: '100%' }}
@@ -1176,7 +1176,7 @@ export default function DashboardDua(props) {
                             </div>
 
                             <div className="flex flex-column gap-2">
-                                <label htmlFor="no_telp">No Telp Tamu</label>
+                                <label htmlFor="no_telp">No Telp</label>
                                 <div className="p-inputgroup">
                                     <InputText
                                         id="no_telp"
@@ -1419,7 +1419,7 @@ export default function DashboardDua(props) {
                 >
                     <Column field="kode_reservasi" header="Kode Reservasi"></Column>
                     <Column field="nik" header="KTP"></Column>
-                    <Column field="nama_tamu" header="Nama Tamu"></Column>
+                    <Column field="nama_tamu" header="Nama"></Column>
                 </DataTable>
             </Dialog>
 
@@ -1468,7 +1468,7 @@ export default function DashboardDua(props) {
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="nik" header="KTP"></Column>
                     <Column field="kamar_list" header="Meja Dipakai"></Column>
-                    <Column field="nama_tamu" header="Nama Tamu"></Column>
+                    <Column field="nama_tamu" header="Nama"></Column>
                     <Column field="no_telepon" header="No Telepon"></Column>
                     <Column field="bayar" header="Bayar" body={(rowData) => rupiahConverter(rowData.bayar)}></Column>
                     <Column field="total_harga" header="Total Harga" body={(rowData) => rupiahConverter(rowData.total_harga)}></Column>
