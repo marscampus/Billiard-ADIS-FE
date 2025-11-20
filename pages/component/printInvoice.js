@@ -220,6 +220,7 @@
 // export default PrintInvoice;
 
 // Invoice.js untuk Printer Thermal 58mm
+import { format } from 'date-fns';
 import React from 'react';
 
 const rupiahConverter = (number) => {
@@ -236,8 +237,8 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
         <tr key={index}>
             <td style={{ textAlign: 'left', padding: '1px 0', fontSize: '7px' }}>{item.no_kamar}</td>
             <td style={{ textAlign: 'right', padding: '1px 0', fontSize: '7px' }}>{rupiahConverter(item.harga_kamar)}</td>
-            <td style={{ textAlign: 'center', padding: '1px 0', fontSize: '7px' }}>{item.cek_in}</td>
-            <td style={{ textAlign: 'center', padding: '1px 0', fontSize: '7px' }}>{item.cek_out}</td>
+            <td style={{ textAlign: 'center', padding: '1px 0', fontSize: '7px' }}>{format(new Date(item.cek_in), 'yyyy-MM-dd HH:ii')}</td>
+            {/* <td style={{ textAlign: 'center', padding: '1px 0', fontSize: '7px' }}>{item.cek_out}</td> */}
         </tr>
     ));
 
@@ -257,9 +258,9 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
 
     return (
         <div ref={ref} style={{
-            padding: '2px',
+            padding: '30px',
             fontFamily: 'monospace',
-            fontSize: '8px',
+            fontSize: '25px',
             lineHeight: 1,
             maxWidth: '58mm',
             width: '100%'
@@ -305,7 +306,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
                             <th style={{ textAlign: 'left', padding: '0px', borderBottom: '1px solid #000' }}>Meja</th>
                             <th style={{ textAlign: 'right', padding: '0px', borderBottom: '1px solid #000' }}>Harga</th>
                             <th style={{ textAlign: 'center', padding: '0px', borderBottom: '1px solid #000' }}>Mulai</th>
-                            <th style={{ textAlign: 'center', padding: '0px', borderBottom: '1px solid #000' }}>Selesai</th>
+                            {/* <th style={{ textAlign: 'center', padding: '0px', borderBottom: '1px solid #000' }}>Selesai</th> */}
                         </tr>
                     </thead>
                     <tbody>{kamarRows}</tbody>

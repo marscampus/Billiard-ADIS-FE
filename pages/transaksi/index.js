@@ -19,6 +19,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
+import { Panel } from 'primereact/panel';
 import { Checkbox } from 'primereact/checkbox';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -128,11 +129,11 @@ export default function DashboardDua(props) {
     };
 
     const showSuccess = (detail) => {
-        toast.current.show({ severity: 'success', summary: 'Success Message', detail: detail, life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Success Message', detail: detail, life: 3000 });
     };
 
     const showError = (detail) => {
-        toast.current.show({ severity: 'error', summary: 'Error Message', detail: detail, life: 3000 });
+        toast.current?.show({ severity: 'error', summary: 'Error Message', detail: detail, life: 3000 });
     };
 
     const getDataDash = async () => {
@@ -188,7 +189,7 @@ export default function DashboardDua(props) {
             ppn: 0,
             kode_reservasi: '',
             kode_invoice: '',
-            metode_pembayaran: '01',
+            metode_pembayaran: 'Tunai',
             sisa_bayar: 0,
             status_bayar: '',
             tgl_invoice: '',
@@ -330,8 +331,6 @@ export default function DashboardDua(props) {
             const res = await postData('/api/reservasi/get-data', {});
             const data = res.data.data;
 
-            console.log(data);
-
             setDataReservasi((prev) => ({ ...prev, load: false, data: data }));
         } catch (error) {
             console.log(error);
@@ -460,6 +459,7 @@ export default function DashboardDua(props) {
 
         // Hasil akhir
         formik.setFieldValue('total_harga', hargaSetelahPPN);
+        formik.setFieldValue('bayar', hargaSetelahPPN);
     };
 
     const calculateBayar = (hargaTot, bayar, bayarOld = 0) => {
@@ -609,178 +609,32 @@ export default function DashboardDua(props) {
                                 }}
                             />
                         </div>
+                        <div className="card mb-0" style={{ borderRadius: '4px', padding: '4px' }}>
+                            <Panel header="List Waktu" toggleable>
+                                <div className='grid'>
+                                    <div className='col-12 flex flex-column gap-2'>
+                                        <span style={{ fontWeight: 'bold' }}>Jam Tersedia : </span>
+                                        <div className='flex gap-2 flex-wrap'>
+                                            {data.unused?.map((item) => {
+                                                return <Chip label={item} style={{ borderRadius: '4px', margin: '2px', textAlign: 'center' }} />;
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className='col-12 flex flex-column gap-2'>
+                                        <span style={{ fontWeight: 'bold' }}>Terbooking : </span>
+                                        <div className='flex gap-2 flex-column'>
+                                            {data.used?.map((item) => {
+                                                return <Chip label={item} style={{ borderRadius: '4px', margin: '2px', textAlign: 'center' }} />;
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Panel>
+                        </div>
                     </div>
                 </div>
             </div>
         );
-    };
-
-    const printPdf = async (data) => {
-        const doc = new jsPDF({
-            unit: 'mm'
-        });
-
-        const kamar = data.kamar.map((item) => [item.no_kamar, rupiahConverter(item.harga_kamar), item.cek_in, item.cek_out]);
-
-        console.log(kamar);
-        // Logo Sikop
-        const imgBase64 = await loadImageAsBase64('/layout/images/godongpng.png');
-
-        // Menambahkan gambar ke PDF
-        await getBase64ImageResolution(data.logo_hotel).then(({ width, height }) => {
-            console.log(`Resolusi gambar: ${width}x${height}`);
-
-            if (width > 500 || height > 500) {
-                showError('Resolusi logo terlalu besar, sebaiknya resize ke <500x500 px');
-            } else {
-                doc.addImage(data.logo_hotel, 'PNG', 15, 8, 25, 25);
-            }
-        });
-
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(18);
-        doc.text(data.nama_hotel, 198, 20, null, null, 'right');
-
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(data.alamat_hotel, 198, 27, null, null, 'right');
-        doc.text(data.no_telp_hotel, 198, 33, null, null, 'right');
-        // doc.text('63118', 198, 39, null, null, 'right');
-
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(20);
-        if (!data.kode_reservasi) {
-            doc.text('Invoice : ' + data.kode_invoice, 15, 43);
-            doc.setFont('Helvetica', 'normal');
-            doc.setFontSize(14);
-            doc.text('Invoice Date : ' + data.tgl_invoice, 15, 50);
-
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(14);
-            doc.text('Invoice To', 15, 70);
-        } else {
-            doc.text('Reservation : ' + data.kode_reservasi, 15, 43);
-            doc.setFont('Helvetica', 'normal');
-            doc.setFontSize(14);
-            doc.text('Reservation Date : ' + data.tgl_reservasi, 15, 50);
-
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(14);
-            doc.text('To', 15, 70);
-        }
-
-        doc.setFont('Helvetica', 'normal');
-        doc.text(data.nama_tamu, 15, 77);
-        doc.text(data.nik, 15, 84);
-        doc.text(data.no_telepon, 15, 90);
-
-        doc.autoTable({
-            startY: 95,
-            columnStyles: { 1: { halign: 'right' }, 0: { halign: 'left' } },
-            styles: {
-                lineWidth: 0.1,
-                fontSize: 14,
-                halign: 'center'
-            },
-            headStyles: {
-                fillColor: [204, 201, 199],
-                textColor: 20
-            },
-            head: [['Meja', 'Harga Meja', 'Checkin', 'Checkout']],
-            body: kamar,
-            // foot: [[{ content: 'Total Kamar', styles: { halign: 'right' } }, rupiahConverter(formik.values.total_kamar)]],
-            didParseCell: (data) => {
-                if (data.section === 'foot') {
-                    data.cell.styles.halign = 'right';
-                    data.cell.styles.fillColor = [204, 204, 204];
-                    data.cell.styles.textColor = 20;
-                }
-            },
-            didDrawCell: (data) => {
-                if (data.section === 'foot' && data.row.index === 1) {
-                    // Baris kedua di foot
-                    const { table, cell } = data;
-                    const { x, y, width } = cell;
-                    const borderY = y; // Koordinat garis di atas sel
-
-                    data.doc.setLineWidth(0.5); // Ketebalan garis
-                    data.doc.setDrawColor(240, 240, 240); // Warna garis (hitam)
-                    data.doc.line(x, borderY, x + width, borderY); // Menggambar garis horizontal
-                }
-            }
-        });
-
-        const hargaKamar = Number(data.total_kamar) || 0;
-        const dp = Number(data.dp) || 0;
-        const diskonPersen = Number(data.disc) || 0;
-        const ppnPersen = Number(data.ppn) || 0;
-
-        const hargaSetelahDP = hargaKamar - dp;
-
-        const jumlahDiskon = (hargaSetelahDP * diskonPersen) / 100;
-        const hargaSetelahDiskon = hargaSetelahDP - jumlahDiskon;
-
-        const jumlahPPN = (hargaSetelahDiskon * ppnPersen) / 100;
-        const hargaTotal = hargaSetelahDiskon + jumlahPPN;
-
-        const tableEndY = doc.lastAutoTable?.finalY || 50;
-
-        // Posisi kolom
-        const labelX = 15;
-        const valueX = 78;
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Perhitungan:', labelX, tableEndY + 10);
-
-        doc.setFont('Helvetica', 'normal');
-        doc.text('Harga Meja', labelX, tableEndY + 20);
-        doc.text(': ' + rupiahConverter(hargaKamar), valueX, tableEndY + 20);
-
-        doc.text('DP', labelX, tableEndY + 27);
-        doc.text(': - ' + rupiahConverter(dp), valueX, tableEndY + 27);
-
-        doc.text(`Diskon (${diskonPersen}%)`, labelX, tableEndY + 34);
-        doc.text(': - ' + rupiahConverter(jumlahDiskon), valueX, tableEndY + 34);
-
-        doc.text(`PPN (${ppnPersen}%)`, labelX, tableEndY + 41);
-        doc.text(': + ' + rupiahConverter(jumlahPPN), valueX, tableEndY + 41);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Nominal Akhir', labelX, tableEndY + 48);
-        doc.text(': ' + rupiahConverter(hargaTotal), valueX, tableEndY + 48);
-
-        const pembayaranStartY = tableEndY + 60;
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Pembayaran:', labelX, pembayaranStartY);
-
-        doc.setFont('Helvetica', 'bold');
-        doc.text('Jumlah Pembayaran', labelX, pembayaranStartY + 10);
-        doc.text(': ' + rupiahConverter(sidebar.reservasi ? data.dp : data.bayar), valueX, pembayaranStartY + 10);
-
-        if (sidebar.laporan || sidebar.reservasi) {
-            doc.setFont('Helvetica', 'normal');
-            doc.text('Metode Pembayaran', labelX, pembayaranStartY + 17);
-            doc.text(': ' + data.cara_bayar, valueX, pembayaranStartY + 17);
-        }
-
-        if (!sidebar.reservasi) {
-            console.log(data.status_bayar);
-            const statusBayar = data.status_bayar == '1' ? 'Lunas' : 'Belum Lunas';
-
-            doc.setFont('Helvetica', 'bold');
-            doc.text('Status Pembayaran', labelX, pembayaranStartY + 24);
-            doc.text(': ' + statusBayar, valueX, pembayaranStartY + 24);
-
-            doc.setFont('Helvetica', 'normal');
-            doc.text('Sisa Bayar', labelX, pembayaranStartY + 31);
-            doc.text(': ' + rupiahConverter(data.sisa_bayar), valueX, pembayaranStartY + 31);
-            doc.setFont('Helvetica', 'normal');
-            doc.text('Kembalian', labelX, pembayaranStartY + 38);
-            doc.text(': ' + rupiahConverter(data.kembalian), valueX, pembayaranStartY + 38);
-        }
-
-        const uri = doc.output('datauristring');
-        setPdf((prev) => ({ ...prev, uri: uri }));
     };
 
     const headerPenginapTemplate = () => {
@@ -850,7 +704,7 @@ export default function DashboardDua(props) {
                         () => getDataDash()} />
                 </div>
 
-                {dataDash.load ? (
+                {dataDash.load || dataReservasi.load || dataPenginap.load ? (
                     <div className="flex flex-column gap-2">
                         <Skeleton className="w-full" height="40px" />
                         <div className="flex gap-2">
@@ -1377,7 +1231,7 @@ export default function DashboardDua(props) {
                 </div>
             </Sidebar>
 
-            <Dialog visible={dataReservasi.show} header={'Daftar Reservasi'} style={{ width: '80%' }} className="md:w-30rem" onHide={() => setDataReservasi((prev) => ({ ...prev, show: false }))}>
+            <Dialog visible={dataReservasi.show} header={'Daftar Reservasi'} style={{ width: '80%' }} onHide={() => setDataReservasi((prev) => ({ ...prev, show: false }))}>
                 <DataTable
                     value={dataReservasi.data}
                     paginator
@@ -1420,6 +1274,17 @@ export default function DashboardDua(props) {
                     <Column field="kode_reservasi" header="Kode Reservasi"></Column>
                     <Column field="nik" header="KTP"></Column>
                     <Column field="nama_tamu" header="Nama"></Column>
+                    <Column header="Detail" body={(rowData) => {
+                        return <div className='flex gap-2 flex-column'>
+                            {
+                                rowData.kamar.map(v => {
+                                    return <div style={{ fontWeight: 'bold' }}>
+                                        [{v.no_kamar}] : [{v.cek_in} s.d {v.cek_out}]
+                                    </div>
+                                })
+                            }
+                        </div>
+                    }}></Column>
                 </DataTable>
             </Dialog>
 
@@ -1427,55 +1292,60 @@ export default function DashboardDua(props) {
                 <iframe src={pdf.uri} width="100%" style={{ height: '100vh' }}></iframe>
             </Dialog> */}
 
-            <Dialog visible={dataPenginap.show} style={{ width: '80vw' }} onHide={() => setDataPenginap((prev) => ({ ...prev, show: false }))}>
-                <DataTable
-                    value={dataPenginap.data}
-                    paginator
-                    header={headerPenginapTemplate}
-                    rows={5}
-                    filters={dataPenginap.filters}
-                    globalFilterFields={['nik', 'nama_tamu', 'no_telepon', 'kode_invoice', 'kamar_list']}
-                    selectionMode="single"
-                    dataKey="kode_invoice"
-                    loading={dataPenginap.load}
-                    onSelectionChange={(e) => {
-                        const data = e.value;
+            <Dialog visible={dataPenginap.show} header={"Detail Pemain"} style={{ width: '80vw' }} onHide={() => setDataPenginap((prev) => ({ ...prev, show: false }))}>
+                <div className='flex gap-2 flex-column'>
+                    <span style={{ fontStyle: "italic", fontWeight: 'bold' }}>
+                        *Klik sekali untuk lihat detail (bagian detail untuk reprint atau untuk melakukan pembayaran ulang / pelunasan serta untuk melakukan checkout secara manual)
+                    </span>
+                    <DataTable
+                        value={dataPenginap.data}
+                        paginator
+                        header={headerPenginapTemplate}
+                        rows={5}
+                        filters={dataPenginap.filters}
+                        globalFilterFields={['nik', 'nama_tamu', 'no_telepon', 'kode_invoice', 'kamar_list']}
+                        selectionMode="single"
+                        dataKey="kode_invoice"
+                        loading={dataPenginap.load}
+                        onSelectionChange={(e) => {
+                            const data = e.value;
 
-                        console.log(data);
+                            console.log(data);
 
-                        formik.setValues((prev) => ({
-                            ...prev,
-                            nama: data.nama_tamu,
-                            no_telp: data.no_telepon,
-                            kode_invoice: data.kode_invoice,
-                            nik: data.nik,
-                            sisa_bayar: data.sisa_bayar,
-                            kamar: data.kamar,
-                            total_kamar: data.total_kamar,
-                            status_bayar: data.status_bayar,
-                            total_harga: data.total_harga,
-                            tgl_invoice: data.tgl_invoice,
-                            ppn: data.ppn,
-                            dp: data.dp,
-                            bayar_old: data.bayar,
-                            metode_pembayaran: data.kode_cara_bayar
-                        }));
+                            formik.setValues((prev) => ({
+                                ...prev,
+                                nama: data.nama_tamu,
+                                no_telp: data.no_telepon,
+                                kode_invoice: data.kode_invoice,
+                                nik: data.nik,
+                                sisa_bayar: data.sisa_bayar,
+                                kamar: data.kamar,
+                                total_kamar: data.total_kamar,
+                                status_bayar: data.status_bayar,
+                                total_harga: data.total_harga,
+                                tgl_invoice: data.tgl_invoice,
+                                ppn: data.ppn,
+                                dp: data.dp,
+                                bayar_old: data.bayar,
+                                metode_pembayaran: data.kode_cara_bayar
+                            }));
 
-                        setDataPenginap((prev) => ({ ...prev, show: false }));
-                        setSidebar((prev) => ({ ...prev, showBar: true, laporan: true, reservasi: false }));
-                        console.log(data);
-                    }}>
-                    <Column field="kode_invoice" header="Kode Invoice"></Column>
-                    <Column field="nik" header="KTP"></Column>
-                    <Column field="kamar_list" header="Meja Dipakai"></Column>
-                    <Column field="nama_tamu" header="Nama"></Column>
-                    <Column field="no_telepon" header="No Telepon"></Column>
-                    <Column field="bayar" header="Bayar" body={(rowData) => rupiahConverter(rowData.bayar)}></Column>
-                    <Column field="total_harga" header="Total Harga" body={(rowData) => rupiahConverter(rowData.total_harga)}></Column>
-                    <Column field="status_bayar" header="Status Bayar" body={(rowData) => <span className={rowData.status_bayar == '1' ? 'text-green-600' : 'text-red-600'}>{rowData.status_bayar > 0 ? 'Lunas' : 'Belum Lunas'}</span>}></Column>
-                    <Column field="sisa_bayar" header="Sisa Bayar" body={(rowData) => rupiahConverter(rowData.sisa_bayar)}></Column>
-                    <Column field="cara_bayar" header="Metode Pembayaran"></Column>
-                </DataTable>
+                            setDataPenginap((prev) => ({ ...prev, show: false }));
+                            setSidebar((prev) => ({ ...prev, showBar: true, laporan: true, reservasi: false }));
+                            console.log(data);
+                        }}>
+                        <Column field="kode_invoice" header="Kode Invoice"></Column>
+                        <Column field="nik" header="KTP"></Column>
+                        <Column field="kamar_list" header="Meja Dipakai"></Column>
+                        <Column field="nama_tamu" header="Nama"></Column>
+                        <Column field="no_telepon" header="No Telepon"></Column>
+                        <Column field="bayar" header="Bayar" body={(rowData) => rupiahConverter(rowData.bayar)}></Column>
+                        <Column field="total_harga" header="Total Harga" body={(rowData) => rupiahConverter(rowData.total_harga)}></Column>
+                        <Column field="status_bayar" header="Status Bayar" body={(rowData) => <span className={rowData.status_bayar == '1' ? 'text-green-600' : 'text-red-600'}>{rowData.status_bayar > 0 ? 'Lunas' : 'Belum Lunas'}</span>}></Column>
+                        <Column field="sisa_bayar" header="Sisa Bayar" body={(rowData) => rupiahConverter(rowData.sisa_bayar)}></Column>
+                        <Column field="cara_bayar" header="Metode Pembayaran"></Column>
+                    </DataTable>
+                </div>
             </Dialog>
             <div style={{ display: 'none' }}>
                 <PrintInvoice ref={strukRef} sidebar={sidebar} data={pdf.data} />
