@@ -48,7 +48,8 @@ const HotelConfig = (props) => {
             ppn: 0,
             no_telp: '',
             logo: '',
-            kota: ''
+            kota: '',
+            booking: '0'
         },
         validate: (data) => {
             let errors = {};
@@ -63,7 +64,7 @@ const HotelConfig = (props) => {
     const getDataConfig = async () => {
         setDataConfig((prev) => ({ ...prev, load: true }));
         try {
-            const res = await postData('/api/config/get', { kode: ['nama_hotel', 'alamat_hotel', 'no_telp', 'ppn', 'logo', 'kota'] });
+            const res = await postData('/api/config/get', { kode: ['nama_hotel', 'alamat_hotel', 'no_telp', 'ppn', 'logo', 'kota', 'booking'] });
             console.log(res.data);
 
             formik.setValues({
@@ -72,7 +73,8 @@ const HotelConfig = (props) => {
                 alamat_hotel: res.data.data.alamat_hotel,
                 ppn: res.data.data.ppn,
                 no_telp: res.data.data.no_telp,
-                kota: res.data.data.kota
+                kota: res.data.data.kota,
+                booking: res.data.data.booking,
             });
             setDataConfig((prev) => ({ ...prev, load: false }));
         } catch (error) {
@@ -148,22 +150,37 @@ const HotelConfig = (props) => {
                     </div>
                     <form onSubmit={formik.handleSubmit} className="flex flex-column gap-2">
                         <div className="flex flex-column sm:flex-row gap-3">
-                            <div className={dataConfig.edit ? 'p-image-preview-container' : 'p-image-container'} style={{ width: '250px', height: '250px', borderRadius: '6px' }}>
-                                <img src={formik.values.logo ? formik.values.logo : '/layout/images/no_img.jpg'} alt="logo" style={{ width: '250px', height: '250px', objectFit: 'cover', objectPosition: 'center', borderRadius: '6px' }} />
-                                {dataConfig.edit ? (
-                                    <div className="p-image-preview-indicator" style={{ borderRadius: '6px' }} onClick={() => document.getElementById('fileInput').click()}>
-                                        <i className="pi pi-pencil"></i>
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                                <input
-                                    type="file"
-                                    id="fileInput"
-                                    accept="image/*"
-                                    style={{ display: 'none' }} // Menyembunyikan input file
-                                    onChange={onFileSelect}
-                                />
+                            <div className='flex flex-column gap-2'>
+
+                                <div className={dataConfig.edit ? 'p-image-preview-container' : 'p-image-container'} style={{ width: '250px', height: '250px', borderRadius: '6px' }}>
+                                    <img src={formik.values.logo ? formik.values.logo : '/layout/images/no_img.jpg'} alt="logo" style={{ width: '250px', height: '250px', objectFit: 'cover', objectPosition: 'center', borderRadius: '6px' }} />
+                                    {dataConfig.edit ? (
+                                        <div className="p-image-preview-indicator" style={{ borderRadius: '6px' }} onClick={() => document.getElementById('fileInput').click()}>
+                                            <i className="pi pi-pencil"></i>
+                                        </div>
+                                    ) : (
+                                        ''
+                                    )}
+                                    <input
+                                        type="file"
+                                        id="fileInput"
+                                        accept="image/*"
+                                        style={{ display: 'none' }} // Menyembunyikan input file
+                                        onChange={onFileSelect}
+                                    />
+                                </div>
+
+                                <div className="flex flex-column gap-2 w-full">
+                                    <label htmlFor="booking">Booking</label>
+                                    {/* <div className="p-inputgroup"> */}
+                                    <ToggleButton
+                                        disabled={!dataConfig.edit}
+                                        onChange={(e) => formik.setFieldValue('booking', e.value ? '1' : '0')}
+                                        checked={formik.values.booking == '1'} onLabel="Aktif" offLabel="Tidak Aktif"
+                                    />
+                                    {/* </div> */}
+                                    {isFormFieldInvalid('booking') ? getFormErrorMessage('booking') : ''}
+                                </div>
                             </div>
                             <div className="flex flex-column w-full gap-2">
                                 <div className="flex flex-column gap-2 w-full">

@@ -203,7 +203,7 @@ export default function DashboardDua(props) {
             // Validasi untuk field utama
             !data.nama && (errors.nama = 'Nama pemain tidak boleh kosong.');
             !data.no_telp && (errors.no_telp = 'No telp pemain tidak boleh kosong.');
-            !data.nik && (errors.nik = 'KTP pemain tidak boleh kosong.');
+            !data.nik && (errors.nik = 'NIP pemain tidak boleh kosong.');
 
             // Validasi untuk kamar
             errors.kamar = []; // Inisialisasi sebagai array kosong
@@ -1011,7 +1011,7 @@ export default function DashboardDua(props) {
                                 </div>
 
                                 <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="nik">KTP</label>
+                                    <label htmlFor="nik">NIP</label>
                                     <div className="p-inputgroup">
                                         <InputText
                                             style={{ width: '100%' }}
@@ -1272,7 +1272,7 @@ export default function DashboardDua(props) {
                     }}
                 >
                     <Column field="kode_reservasi" header="Kode Reservasi"></Column>
-                    <Column field="nik" header="KTP"></Column>
+                    <Column field="nik" header="NIP"></Column>
                     <Column field="nama_tamu" header="Nama"></Column>
                     <Column header="Detail" body={(rowData) => {
                         return <div className='flex gap-2 flex-column'>
@@ -1335,7 +1335,7 @@ export default function DashboardDua(props) {
                             console.log(data);
                         }}>
                         <Column field="kode_invoice" header="Kode Invoice"></Column>
-                        <Column field="nik" header="KTP"></Column>
+                        <Column field="nik" header="NIP"></Column>
                         <Column field="kamar_list" header="Meja Dipakai"></Column>
                         <Column field="nama_tamu" header="Nama"></Column>
                         <Column field="no_telepon" header="No Telepon"></Column>

@@ -293,7 +293,7 @@ const PrintInvoice = React.forwardRef(({ data, sidebar }, ref) => {
             <div style={{ marginBottom: '3px' }}>
                 <p style={{ margin: '1px 0', fontWeight: 'bold', fontSize: '8px' }}>Pemain:</p>
                 <p style={{ margin: '0px', fontSize: '7px' }}>{data?.nama_tamu}</p>
-                <p style={{ margin: '0px', fontSize: '7px' }}>NIK: {data?.nik}</p>
+                <p style={{ margin: '0px', fontSize: '7px' }}>NIP: {data?.nik}</p>
                 <p style={{ margin: '0px', fontSize: '7px' }}>TELP: {data?.no_telepon}</p>
             </div>
 
