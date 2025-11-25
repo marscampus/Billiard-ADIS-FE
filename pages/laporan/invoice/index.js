@@ -2,7 +2,7 @@ import { getSessionServerSide } from '../../../utilities/servertool';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useEffect, useRef, useState } from 'react';
-import { convertToISODate, rupiahConverter } from '../../../component/GeneralFunction/GeneralFunction';
+import { convertToISODate, formatDate, getUserName, rupiahConverter } from '../../../component/GeneralFunction/GeneralFunction';
 import { Toast } from 'primereact/toast';
 import postData from '../../../lib/Axios';
 import { Calendar } from 'primereact/calendar';
@@ -14,6 +14,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import PrintInvoice from '../../component/printInvoice';
 import { useReactToPrint } from 'react-to-print';
+import PreviewCustom from '../../component/pdfExcelPrintCustom';
+import { addPageInfo } from '../../../component/exportPDF/exportPDF';
 
 export async function getSessionSideProps(context) {
     const sessionData = await getSessionServerSide(context, context.resolvedUrl);
@@ -28,11 +30,13 @@ export async function getSessionSideProps(context) {
 const LaporanInvoice = (props) => {
     //state
     const strukRef = useRef(null);
+    const toast = useRef(null);
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     });
     const [dataInvoice, setDataInvoice] = useState({
         data: [],
+        dataPrint: [],
         load: false,
         tglLaporan: [new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)],
         searchVal: '',
@@ -41,7 +45,20 @@ const LaporanInvoice = (props) => {
         showDelete: false,
         dataEdit: {}
     });
-    const toast = useRef(null);
+
+    const [dataRekap, setDataRekap] = useState({
+        data: [],
+        dataTotal: [],
+        dataExcel: [],
+        head: [],
+        load: false,
+        columnStyles: {},
+        show: false,
+        adjust: false,
+        fileName: `laporan-invoice-${new Date().toISOString().slice(0, 10)}`,
+        judul1: 'Laporan INVOICE',
+        judul2: ''
+    });
 
     const [pdf, setPdf] = useState({
         uri: '',
@@ -100,7 +117,7 @@ const LaporanInvoice = (props) => {
                 kamar_list: invoice.kamar.map((k) => k.no_kamar).join(', ')
             }));
 
-            setDataInvoice((prev) => ({ ...prev, load: false, data: processedData }));
+            setDataInvoice((prev) => ({ ...prev, load: false, data: processedData, dataPrint: res.data.dataPrint }));
         } catch (error) {
             console.log(error);
             const e = error?.response?.data || error;
@@ -108,6 +125,45 @@ const LaporanInvoice = (props) => {
             setDataInvoice((prev) => ({ ...prev, load: false, data: [] }));
         }
     };
+
+    const getDataPreview = async (data) => {
+        setDataRekap((p) => ({ ...p, load: true }));
+        try {
+            const [tgl_awal, tgl_akhir] = dataInvoice.tglLaporan.map((item) => {
+                return formatDate(item);
+            });
+            let judul = 'Laporan Transaksi Billiard'
+
+            if (dataInvoice.dataPrint.length < 1) {
+                showError('Data tidak ditemukan');
+                return
+            }
+
+            let columnStyles = {
+                // 2: { halign: 'right' },
+                // 3: { halign: 'right' },
+                // 4: { halign: 'right' },
+                // 5: { halign: 'right' },
+            }
+
+            setDataRekap(p => ({
+                ...p,
+                data: dataInvoice.dataPrint,
+                // dataExcel: dataInvoice.dataExcel,
+                show: true,
+                adjust: true,
+                columnStyles,
+                judul1: judul,
+                judul2: 'Antara Tanggal ' + tgl_awal + ' - ' + tgl_akhir
+            }))
+        } catch (error) {
+            setDataRekap((p) => ({ ...p, data: [] }));
+            const e = error?.response?.data || error;
+            showError(e?.message || 'Terjadi Kesalahan');
+        } finally {
+            setDataRekap((p) => ({ ...p, load: false }));
+        }
+    }
 
     const getDataPdf = async (kode_invoice) => {
         setPdf((prev) => ({ ...prev, load: true }));
@@ -194,37 +250,198 @@ const LaporanInvoice = (props) => {
     }, []);
     //
 
-    //template
+    const handleCustomTable = async ({ doc, marginTopInMm = 10, marginLeftInMm = 10, marginRightInMm = 10, marginBottomInMm = 10 }) => {
+        const row = dataRekap.data
+        // Left margin
+        let y = marginTopInMm;
+        const left = marginLeftInMm;
+        const lineHeight = 6;
+        const vaData1 = (dataRekap.data)
+
+        const userName = await getUserName()
+
+        const tableHead1 = Object.keys(vaData1[0]).filter(v => v !== 'Jenis');
+
+        const tableData1 = vaData1.map(row =>
+            Object.entries(row)
+                .filter(([key]) => key !== 'Jenis') // buang field 'Jenis'
+                .map(([, value]) => value)          // ambil hanya value-nya
+        );
+
+        doc.autoTable({
+            startY: 45 + y,
+            head: [tableHead1],
+            body: tableData1,
+            theme: 'plain',
+            margin: {
+                top: marginTopInMm,
+                left: marginLeftInMm,
+                right: marginRightInMm,
+                bottom: marginBottomInMm + 10
+            },
+            styles: {
+                lineColor: [0, 0, 0],
+                lineWidth: 0.1,
+                fillColor: [255, 255, 255],
+                textColor: [0, 0, 0],
+                fontSize: 8
+            },
+            columnStyles: {
+                ...dataRekap?.columnStyles,
+            },
+
+            headerStyles: {
+                fillColor: [255, 255, 255],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            didParseCell: function (data) {
+                if (data.section === 'body') {
+                    const text = String(data.cell.raw || '').toUpperCase();
+
+                    const boldKeywords = [
+                        'ASET', 'KEWAJIBAN DAN MODAL',
+                        'TOTAL ASET', 'TOTAL KEWAJIBAN DAN MODAL'
+                    ];
+
+                    const original = tableData1.find(v => v.Kode === row.Kode);
+
+                    if (
+                        // boldKeywords.some(keyword => text.includes(keyword)) ||
+                        (original && original.Jenis && original.Jenis == 'Y')
+                    ) {
+                        data.cell.styles.fontStyle = 'bold';
+                    }
+                }
+            },
+            didDrawPage: (data) => {
+                addPageInfo(doc, userName, marginRightInMm);
+            }
+        });
+
+        const finalY = doc.lastAutoTable.finalY;
+        y += finalY
+
+        y += doc.lastAutoTable.finalY - 100
+        return y
+    };
+
+    // //template
+    // const headerTemplate = () => {
+    //     return (
+    //         <>
+    //             <div className="flex justify-content-between">
+    //                 <div className="p-inputgroup" style={{ width: '50%' }}>
+    //                     <Calendar
+    //                         dateFormat="yy-mm-dd"
+    //                         value={dataInvoice.tglLaporan[0]}
+    //                         onChange={(e) => {
+    //                             console.log(e.value);
+    //                             setDataInvoice((prev) => ({ ...prev, tglLaporan: [e.value, prev.tglLaporan[1]] }));
+    //                         }}
+    //                         readOnlyInput
+    //                     />
+
+    //                     <Calendar
+    //                         dateFormat="yy-mm-dd"
+    //                         value={dataInvoice.tglLaporan[1]}
+    //                         onChange={(e) => {
+    //                             console.log(e.value);
+    //                             setDataInvoice((prev) => ({ ...prev, tglLaporan: [prev.tglLaporan[0], e.value] }));
+    //                         }}
+    //                         readOnlyInput
+    //                     />
+
+    //                     <Button icon="pi pi-search" onClick={() => getDataInvoice()} />
+    //                     <Button severity='info' icon="pi pi-book" label='Preview' onClick={() => getDataPreview()} />
+    //                 </div>
+    //                 <InputText value={dataInvoice.searchVal} placeholder="Search" onChange={onGlobalFilterChange} />
+    //             </div>
+    //         </>
+    //     );
+    // };
+
     const headerTemplate = () => {
         return (
-            <>
-                <div className="flex justify-content-between">
-                    <div className="p-inputgroup" style={{ width: '50%' }}>
-                        <Calendar
-                            dateFormat="yy-mm-dd"
-                            value={dataInvoice.tglLaporan[0]}
-                            onChange={(e) => {
-                                console.log(e.value);
-                                setDataInvoice((prev) => ({ ...prev, tglLaporan: [e.value, prev.tglLaporan[1]] }));
-                            }}
-                            readOnlyInput
-                        />
-
-                        <Calendar
-                            dateFormat="yy-mm-dd"
-                            value={dataInvoice.tglLaporan[1]}
-                            onChange={(e) => {
-                                console.log(e.value);
-                                setDataInvoice((prev) => ({ ...prev, tglLaporan: [prev.tglLaporan[0], e.value] }));
-                            }}
-                            readOnlyInput
-                        />
-
-                        <Button icon="pi pi-search" onClick={() => getDataInvoice()} />
+            <div className="grid grid-nogutter align-items-center justify-content-between mb-3">
+                {/* Left Section - Date Range */}
+                <div className="col-12 md:col-6 lg:col-6">
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="date-range" className="font-semibold text-sm">
+                            Periode Laporan
+                        </label>
+                        <div className="flex align-items-center gap-2">
+                            <Calendar
+                                id="date-range"
+                                dateFormat="yy-mm-dd"
+                                value={dataInvoice.tglLaporan[0]}
+                                onChange={(e) => {
+                                    setDataInvoice((prev) => ({
+                                        ...prev,
+                                        tglLaporan: [e.value, prev.tglLaporan[1]]
+                                    }));
+                                }}
+                                placeholder="Tanggal Mulai"
+                                readOnlyInput
+                                showIcon
+                                className="flex-1"
+                            />
+                            <span className="">s/d</span>
+                            <Calendar
+                                dateFormat="yy-mm-dd"
+                                value={dataInvoice.tglLaporan[1]}
+                                onChange={(e) => {
+                                    setDataInvoice((prev) => ({
+                                        ...prev,
+                                        tglLaporan: [prev.tglLaporan[0], e.value]
+                                    }));
+                                }}
+                                placeholder="Tanggal Akhir"
+                                readOnlyInput
+                                showIcon
+                                className="flex-1"
+                            />
+                            <Button
+                                icon="pi pi-search"
+                                onClick={() => getDataInvoice()}
+                                tooltip="Cari Data"
+                                tooltipOptions={{ position: 'top' }}
+                            />
+                        </div>
                     </div>
-                    <InputText value={dataInvoice.searchVal} placeholder="Search" onChange={onGlobalFilterChange} />
                 </div>
-            </>
+
+                {/* Right Section - Actions and Search */}
+                <div className="col-12 md:col-6 lg:col-6">
+                    <div className="flex flex-column md:flex-row gap-3 justify-content-end">
+                        {/* Preview Button */}
+                        <div className="flex align-items-end">
+                            <Button
+                                severity='info'
+                                icon="pi pi-book"
+                                label='Preview Laporan'
+                                onClick={() => getDataPreview()}
+                                className="w-full md:w-auto"
+                            />
+                        </div>
+
+                        {/* Global Search */}
+                        <div className="flex flex-column gap-2 flex-1 md:max-w-20rem">
+                            <label htmlFor="global-search" className="font-semibold text-sm">
+                                Cari Data
+                            </label>
+                            <InputText
+                                id="global-search"
+                                value={dataInvoice.searchVal}
+                                placeholder="Cari berdasarkan NIP, Nama, No. Telepon, Kode Invoice..."
+                                onChange={onGlobalFilterChange}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     };
 
@@ -254,15 +471,27 @@ const LaporanInvoice = (props) => {
         <>
             <Toast ref={toast} />
             <div className="card">
-                <h4>Laporan Invoice</h4>
+                <div className="flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h4 className="m-0">Laporan Invoice</h4>
+                    </div>
+                    {/* <Button
+                        icon="pi pi-refresh"
+                        // rounded
+                        // outlined
+                        onClick={getDataInvoice}
+                        tooltip="Refresh Data"
+                        tooltipOptions={{ position: 'left' }}
+                    /> */}
+                </div>
                 <DataTable value={dataInvoice.data} size="small" filters={filters} globalFilterFields={['nik', 'nama_tamu', 'no_telepon', 'kode_invoice', 'kamar_list']} loading={dataInvoice.load} paginator rows={10} header={headerTemplate}>
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="kamar_list" header="Meja dipakai"></Column>
-                    <Column field="nik" header="KTP"></Column>
+                    <Column field="nik" header="NIP"></Column>
                     <Column field="nama_tamu" header="Nama"></Column>
                     <Column field="no_telepon" header="No Telepon"></Column>
                     <Column field="total_kamar" header="Total Meja" body={(rowData) => rupiahConverter(rowData.total_kamar)}></Column>
-                    <Column field="total_harga_real" header="Total Harga Asli" body={(rowData) => rupiahConverter(rowData.total_harga_real)}></Column>
+                    {/* <Column field="total_harga_real" header="Total Harga Asli" body={(rowData) => rupiahConverter(rowData.total_harga_real)}></Column> */}
                     <Column field="dp" header="Total DP" body={(rowData) => rupiahConverter(rowData.dp)}></Column>
                     {/* <Column field="total_bayar_tersisa" header="Total Bayar Yang Tersisa" body={(rowData) => rupiahConverter(rowData.total_bayar_tersisa)}></Column> */}
                     <Column field="bayar" header="Bayar" body={(rowData) => rupiahConverter(rowData.bayar)}></Column>
@@ -283,6 +512,7 @@ const LaporanInvoice = (props) => {
                     ></Column>
                 </DataTable>
             </div>
+
             <Dialog visible={dataInvoice.showDetail} onHide={() => setDataInvoice((prev) => ({ ...prev, showDetail: false, dataDetail: [] }))} style={{ width: '80%' }}>
                 <DataTable value={dataInvoice.dataDetail}>
                     <Column field="no_kamar" header="Meja"></Column>
@@ -292,10 +522,7 @@ const LaporanInvoice = (props) => {
                     <Column body={invoiceAction}></Column>
                 </DataTable>
             </Dialog>
-            {/* 
-            <Dialog visible={pdf.show} style={{ width: '50vw' }} onHide={() => setPdf((prev) => ({ ...prev, show: false }))} breakpoints={{ '960px': '75vw', '641px': '100vw' }}>
-                <iframe src={pdf.uri} width="100%" style={{ height: '100vh' }}></iframe>
-            </Dialog> */}
+
 
             <Dialog header="Delete" visible={dataInvoice.showDelete} onHide={() => setDataInvoice((p) => ({ ...p, showDelete: false, dataEdit: {} }))} footer={footerDeleteTemplate}>
                 <div className="flex align-items-center justify-content-center">
@@ -316,6 +543,9 @@ const LaporanInvoice = (props) => {
                     data={pdf.data}
                 />
             </div>
+
+            <PreviewCustom dataRekap={dataRekap} setDataRekap={setDataRekap} toast={toast} handleCustomTable={handleCustomTable} pdfOnly={false} />
+
         </>
     );
 };
