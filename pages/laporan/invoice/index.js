@@ -38,7 +38,7 @@ const LaporanInvoice = (props) => {
         data: [],
         dataPrint: [],
         load: false,
-        tglLaporan: [new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)],
+        tglLaporan: [new Date(), new Date()],
         searchVal: '',
         dataDetail: [],
         showDetail: false,
