@@ -485,6 +485,7 @@ const LaporanInvoice = (props) => {
                     /> */}
                 </div>
                 <DataTable value={dataInvoice.data} size="small" filters={filters} globalFilterFields={['nik', 'nama_tamu', 'no_telepon', 'kode_invoice', 'kamar_list']} loading={dataInvoice.load} paginator rows={10} header={headerTemplate}>
+                    <Column field="tgl_invoice" header="Tanggal"></Column>
                     <Column field="kode_invoice" header="Kode Invoice"></Column>
                     <Column field="kamar_list" header="Meja dipakai"></Column>
                     <Column field="nik" header="NIP"></Column>
