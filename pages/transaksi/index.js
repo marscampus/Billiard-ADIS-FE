@@ -537,7 +537,7 @@ export default function DashboardDua(props) {
     // template
     const itemKamarTemplate = (data) => {
         return (
-            <div className="col-12 sm:col-6 lg:col-4 xl:col-3 p-1 p-relative">
+            <div className="col-12 sm:col-6 lg:col-4 xl:col-4 p-1 p-relative">
                 <div className="border-1 surface-border surface-card border-round p-2 relative">
                     {data.status_kamar == 1 ? (
                         <Chip label={'Sedang Digunakan'} style={{ borderRadius: '3px', backgroundColor: 'rgb(248, 27, 27)', position: 'absolute', top: '0', right: '0', color: 'rgb(255,255,255)', border: '1px solid rgb(255,255,255)' }} />
