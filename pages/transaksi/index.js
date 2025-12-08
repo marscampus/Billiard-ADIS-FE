@@ -616,6 +616,7 @@ export default function DashboardDua(props) {
                                         <span style={{ fontWeight: 'bold' }}>Jam Tersedia : </span>
                                         <div className='flex gap-2 flex-wrap'>
                                             {data.unused?.map((item, index) => {
+                                                if (!data.unused[index + 1]) return null;
                                                 return <Chip label={`${data.unused[index]} - ${data.unused[index + 1]}`} style={{ borderRadius: '4px', margin: '2px', textAlign: 'center' }} />;
                                             })}
                                         </div>
@@ -701,7 +702,12 @@ export default function DashboardDua(props) {
                     <div className='font-bold' style={{ fontSize: "20px" }}>Transaksi</div>
 
                     <Button icon="pi pi-refresh" label='Muat Ulang' onClick={
-                        () => getDataDash()} />
+                        () => {
+                            getDataDash();
+                            getDataReservasi();
+                            getDataPenginap();
+                        }
+                    } />
                 </div>
 
                 {dataDash.load || dataReservasi.load || dataPenginap.load ? (
