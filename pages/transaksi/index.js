@@ -30,6 +30,7 @@ import { useReactToPrint } from 'react-to-print';
 import SesiJual from './sesiJual';
 import PrintInvoice from '../component/printInvoice';
 import { LayoutContext } from '../../layout/context/layoutcontext';
+import Anggota from '../component/anggota';
 
 export async function getServerSideProps(context) {
     const sessionData = await getSessionServerSide(context, context.resolvedUrl);
@@ -61,7 +62,8 @@ export default function DashboardDua(props) {
         showBar: false,
         edit: false,
         reservasi: false,
-        laporan: false
+        laporan: false,
+        dialogAnggota: false,
     });
 
     const [dataPenginap, setDataPenginap] = useState({
@@ -511,6 +513,14 @@ export default function DashboardDua(props) {
         contentRef: strukRef,
         documentTitle: 'Invoice'
     });
+
+    const btnAnggota = () => {
+        setSidebar(p => ({ ...p, dialogAnggota: true }));
+    };
+
+    const handleAnggotaData = (data) => {
+        formik.setValues(p => ({ ...p, nik: data.kode, nama: data.nama, no_telp: data.telepon }));
+    };
 
     useEffect(() => {
         getDataDash();
@@ -997,24 +1007,8 @@ export default function DashboardDua(props) {
                     </div>
                     <div className="card" style={{ borderRadius: '4px', marginTop: '5px' }}>
                         <form onSubmit={formik.handleSubmit} className="flex flex-column gap-2">
-                            <div className="flex gap-3">
-                                <div className="flex flex-column gap-2 w-full">
-                                    <label htmlFor="nama">Nama</label>
-                                    <div className="p-inputgroup">
-                                        <InputText
-                                            style={{ width: '100%' }}
-                                            id="nama"
-                                            name="nama"
-                                            readOnly={sidebar.laporan}
-                                            value={formik.values.nama}
-                                            onChange={(e) => {
-                                                formik.setFieldValue('nama', e.target.value);
-                                            }}
-                                            className={isFormFieldInvalid('nama') ? 'p-invalid' : ''}
-                                        />
-                                    </div>
-                                    {isFormFieldInvalid('nama') ? getFormErrorMessage('nama') : ''}
-                                </div>
+                            <div className="flex gap-3 justify-content-center">
+
 
                                 <div className="flex flex-column gap-2 w-full">
                                     <label htmlFor="nik">NIP</label>
@@ -1030,9 +1024,28 @@ export default function DashboardDua(props) {
                                             }}
                                             className={isFormFieldInvalid('nik') ? 'p-invalid' : ''}
                                         />
+                                        <Button type='button' icon="pi pi-search" onClick={() => btnAnggota()} />
                                     </div>
                                     {isFormFieldInvalid('nik') ? getFormErrorMessage('nik') : ''}
                                 </div>
+                            </div>
+
+                            <div className="flex flex-column gap-2 w-full">
+                                <label htmlFor="nama">Nama</label>
+                                <div className="p-inputgroup">
+                                    <InputText
+                                        style={{ width: '100%' }}
+                                        id="nama"
+                                        name="nama"
+                                        readOnly={sidebar.laporan}
+                                        value={formik.values.nama}
+                                        onChange={(e) => {
+                                            formik.setFieldValue('nama', e.target.value);
+                                        }}
+                                        className={isFormFieldInvalid('nama') ? 'p-invalid' : ''}
+                                    />
+                                </div>
+                                {isFormFieldInvalid('nama') ? getFormErrorMessage('nama') : ''}
                             </div>
 
                             <div className="flex flex-column gap-2">
@@ -1227,6 +1240,7 @@ export default function DashboardDua(props) {
                                 severity="warning"
                                 className="mt-2 w-full"
                                 label="Print"
+                                type='submit'
                                 loading={pdf.load}
                                 onClick={() => {
                                     getDataPdf(formik.values.kode_invoice, true);
@@ -1357,6 +1371,7 @@ export default function DashboardDua(props) {
                 <PrintInvoice ref={strukRef} sidebar={sidebar} data={pdf.data} />
             </div>
 
+            <Anggota anggotaDialog={sidebar.dialogAnggota} setAnggotaDialog={v => setSidebar(p => ({ ...p, dialogAnggota: v }))} handleAnggotaData={handleAnggotaData} />
             {shiftDialog && <SesiJual shiftDialog={shiftDialog} hideDialog={hideDialog} onSesiSelect={handleSesiSelect} />}
         </>
     );
