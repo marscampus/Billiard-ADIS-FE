@@ -873,12 +873,13 @@ export default function DashboardDua(props) {
                                                             style={sidebar.laporan ? { pointerEvents: 'none' } : {}}
                                                             showTime={!sidebar.reservasi || sidebar.laporan || item.per_harga == 'Jam' ? true : false}
                                                             hourFormat="24"
+                                                            stepMinute={60}
                                                             onChange={(e) => {
                                                                 const newKamar = [...formik.values.kamar];
                                                                 const selectedDate = new Date(e.value);
                                                                 const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')} ${String(
                                                                     selectedDate.getHours()
-                                                                ).padStart(2, '0')}:${String(selectedDate.getMinutes()).padStart(2, '0')}:${String(selectedDate.getSeconds()).padStart(2, '0')}`;
+                                                                ).padStart(2, '0')}:${String('00')}:${String('00')}`;
 
                                                                 newKamar[index] = {
                                                                     ...newKamar[index],
@@ -905,12 +906,16 @@ export default function DashboardDua(props) {
                                                             readOnlyInput
                                                             showTime={!sidebar.reservasi || sidebar.laporan || item.per_harga == 'Jam' ? true : false}
                                                             hourFormat="24"
+                                                            stepMinute={60}
                                                             onChange={(e) => {
                                                                 const newKamar = [...formik.values.kamar];
                                                                 const selectedDate = new Date(e.value);
+                                                                // const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')} ${String(
+                                                                //     selectedDate.getHours()
+                                                                // ).padStart(2, '0')}:${String(selectedDate.getMinutes()).padStart(2, '0')}:${String(selectedDate.getSeconds()).padStart(2, '0')}`;
                                                                 const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')} ${String(
                                                                     selectedDate.getHours()
-                                                                ).padStart(2, '0')}:${String(selectedDate.getMinutes()).padStart(2, '0')}:${String(selectedDate.getSeconds()).padStart(2, '0')}`;
+                                                                ).padStart(2, '0')}:${String('00')}:${String('00')}`;
 
                                                                 newKamar[index] = {
                                                                     ...newKamar[index],
