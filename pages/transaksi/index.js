@@ -626,8 +626,7 @@ export default function DashboardDua(props) {
                                         <span style={{ fontWeight: 'bold' }}>Jam Tersedia : </span>
                                         <div className='flex gap-2 flex-wrap'>
                                             {data.unused?.map((item, index) => {
-                                                if (!data.unused[index + 1]) return null;
-                                                return <Chip label={`${data.unused[index]} - ${data.unused[index + 1]}`} style={{ borderRadius: '4px', margin: '2px', textAlign: 'center' }} />;
+                                                return <Chip label={`${item}`} style={{ borderRadius: '4px', margin: '2px', textAlign: 'center' }} />;
                                             })}
                                         </div>
                                     </div>
